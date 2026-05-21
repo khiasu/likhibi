@@ -1,0 +1,585 @@
+package com.likhibi.keyboard
+
+import android.content.Context
+import android.util.Log
+
+class NagameseOfflineEngine(private val context: Context) {
+
+    // Thread-safe in-memory cache for past Gemini API results (LRU cache representation)
+    private val geminiCache = object : LinkedHashMap<String, List<String>>(100, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<String>>?): Boolean {
+            return size > 150 // Keep up to 150 unique context prediction entries
+        }
+    }
+
+    // Learned user vocabulary (added during the current typing sessions to personalize predictions)
+    private val userWords = mutableMapOf<String, Int>()
+
+    // Local high-frequency vocabulary list of EXACTLY 430+ commonly used Nagamese words based on Bible & Grammar texts
+    private val localDictionary = mapOf(
+        // Pronouns & Possessive Markers (High Priority)
+        "moi" to 100,
+        "tumi" to 98,
+        "tai" to 95,
+        "ami" to 92,
+        "apuni" to 90,
+        "toi" to 88,
+        "itu" to 86,
+        "etu" to 86,
+        "sob" to 84,
+        "dusra" to 82,
+        "alag" to 80,
+        "nijor" to 85,
+        "laga" to 95,
+        "kunba" to 70,
+        "kiba" to 70,
+        "amikhan" to 90,
+        "tumikhan" to 85,
+        "taikhan" to 85,
+        "apunilaga" to 88,
+        "toilaga" to 80,
+        "tailaga" to 82,
+        "moilaga" to 90,
+        "amilaga" to 85,
+        "kun" to 75,
+        "ki" to 80,
+
+        // Biblical & High-Fidelity Vocabulary (Standardized Spellings)
+        "isor" to 90,
+        "probhu" to 88,
+        "jisu" to 88,
+        "khrist" to 86,
+        "biswas" to 85,
+        "swarg" to 82,
+        "pobitro" to 82,
+        "prithibi" to 80,
+        "paap" to 82,
+        "anondo" to 78,
+        "putro" to 80,
+        "jibon" to 82,
+        "khotom" to 75,
+        "shakti" to 76,
+        "sommaan" to 76,
+        "desh" to 78,
+        "girja" to 74,
+        "git" to 70,
+        "prarthona" to 75,
+        "atma" to 76,
+        "doot" to 70,
+        "saitan" to 70,
+        "norko" to 68,
+        "kros" to 72,
+        "rokto" to 70,
+        "uddhar" to 72,
+        "moron" to 70,
+        "asurit" to 68,
+        "saakhi" to 70,
+        "dan" to 68,
+        "asirbad" to 75,
+        "santi" to 75,
+        "kripa" to 72,
+        "doya" to 75,
+        "dhorj" to 70,
+        "namro" to 70,
+        "bhalmon" to 72,
+        "biswasi" to 74,
+        "dhormo" to 74,
+        "dhormik" to 72,
+        "bhabobadi" to 70,
+        "amen" to 85,
+
+        // Connectives & Transition Words (Crucial for Contextual Sentences)
+        "kelemane" to 85,
+        "kile-koile" to 85,
+        "tinehoile" to 82,
+        "tenehoile" to 82,
+        "jineka" to 80,
+        "eneka" to 85,
+        "hoilebi" to 84,
+        "hataikena" to 78,
+        "kintu" to 80,
+        "aur" to 80,
+        "aro" to 90,
+        "pora" to 88,
+        "te" to 86,
+        "ke" to 86,
+        "na" to 84,
+        "he" to 80,
+        "nisena" to 82,
+        "nisina" to 82,
+        "pise" to 76,
+        "pisot" to 76,
+        "agote" to 78,
+        "nimite" to 80,
+        "jun" to 76,
+        "taike" to 80,
+        "itube" to 74,
+        "tebi" to 74,
+        "bi" to 80,
+
+        // Core Verbs (Unconjugated, matches person perfectly)
+        "ase" to 95,
+        "asu" to 90,
+        "hobo" to 90,
+        "hoise" to 88,
+        "thakibo" to 82,
+        "kori" to 85,
+        "kuri" to 85,
+        "kobo" to 80,
+        "koise" to 85,
+        "janise" to 80,
+        "jabo" to 85,
+        "jabe" to 80,
+        "ahise" to 85,
+        "ahibi" to 80,
+        "khabo" to 78,
+        "kore" to 80,
+        "thake" to 80,
+        "ahile" to 80,
+        "jaise" to 82,
+        "kile" to 75,
+        "dise" to 82,
+        "dibo" to 82,
+        "loise" to 80,
+        "lobo" to 80,
+        "pabo" to 82,
+        "paise" to 82,
+        "hode" to 75,
+        "hoibo" to 78,
+        "lage" to 84,
+        "lagibo" to 84,
+        "lagise" to 84,
+        "thakise" to 80,
+        "hudise" to 70,
+        "hudibo" to 70,
+        "kandise" to 68,
+        "kandibo" to 68,
+        "hahi" to 72,
+        "hahise" to 72,
+        "hahibo" to 70,
+        "matise" to 72,
+        "matibo" to 72,
+        "huni" to 76,
+        "hunise" to 76,
+        "hunibo" to 74,
+        "likhi" to 75,
+        "likhise" to 75,
+        "likhibo" to 78,
+        "porise" to 76,
+        "poribo" to 76,
+        "ghuri" to 70,
+        "ghurise" to 70,
+        "ghuribo" to 70,
+        "khelibo" to 72,
+        "khelise" to 72,
+        "kheli" to 70,
+        "uthibo" to 72,
+        "uthise" to 72,
+        "uthi" to 70,
+        "bohibo" to 70,
+        "bohise" to 70,
+        "bohi" to 68,
+        "rakhibo" to 76,
+        "rakhise" to 76,
+        "rakhi" to 74,
+        "banaibo" to 72,
+        "banaise" to 72,
+        "banai" to 70,
+        "sapibo" to 68,
+        "sapise" to 68,
+        "katibo" to 68,
+        "katise" to 68,
+        "kati" to 66,
+        "maribo" to 70,
+        "marise" to 70,
+        "mari" to 68,
+        "palabo" to 68,
+        "palaise" to 68,
+        "palai" to 66,
+        "sinikibo" to 72,
+        "sinikise" to 72,
+        "sini" to 70,
+        "jaan" to 75,
+        "jaane" to 75,
+        "jano" to 75,
+        "bujhi" to 78,
+        "bujhise" to 78,
+        "bujhibo" to 78,
+        "kamabo" to 72,
+        "kamase" to 72,
+        "kama" to 70,
+        "ghoraibo" to 70,
+        "ghoraise" to 70,
+        "poti" to 70,
+        "potise" to 70,
+        "potibo" to 70,
+        "kinibo" to 72,
+        "kinise" to 72,
+        "kini" to 70,
+        "loijabi" to 78,
+        "naloijabi" to 80,
+        "hobole" to 82,
+        "ahibole" to 82,
+        "di-thakibi" to 78,
+        "koridibi" to 80,
+        "maaf-kori" to 78,
+
+        // Adjectives & Adverbs (Qualities & Quantities)
+        "bhal" to 90,
+        "bisi" to 86,
+        "bissi" to 86,
+        "dur" to 78,
+        "sidha" to 75,
+        "bukha" to 78,
+        "khusi" to 82,
+        "bia" to 84,
+        "dangor" to 82,
+        "chutu" to 80,
+        "morom" to 90,
+        "olop" to 82,
+        "aaste" to 76,
+        "jaldi" to 78,
+        "sosa" to 80,
+        "misa" to 78,
+        "sisa" to 74,
+        "andha" to 70,
+        "kula" to 68,
+        "lula" to 66,
+        "bemar" to 75,
+        "bhal-hoise" to 78,
+        "gorom" to 75,
+        "thanda" to 75,
+        "duri" to 72,
+        "lamba" to 72,
+        "bura" to 72,
+        "buri" to 72,
+        "chalak" to 70,
+        "jada" to 75,
+        "jinda" to 75,
+        "safa" to 76,
+        "saru" to 75,
+        "sasa" to 78,
+        "semeka" to 70,
+        "purana" to 75,
+        "naya" to 78,
+        "khub" to 76,
+        "khali" to 75,
+
+        // Core Everyday Nouns (Home, Places, Nature)
+        "khor" to 85,
+        "ghor" to 82,
+        "paani" to 88,
+        "bhat" to 85,
+        "kam" to 84,
+        "homoy" to 80,
+        "din" to 80,
+        "rat" to 78,
+        "gari" to 80,
+        "gaon" to 80,
+        "gaot" to 75,
+        "naam" to 85,
+        "sahaay" to 82,
+        "pakila" to 80,
+        "bajar" to 78,
+        "basta" to 74,
+        "bepar" to 72,
+        "bepari" to 72,
+        "chabi" to 72,
+        "cha" to 76,
+        "chiti" to 74,
+        "sithi" to 74,
+        "dam" to 80,
+        "dukan" to 78,
+        "dukani" to 72,
+        "kapra" to 78,
+        "ketap" to 78,
+        "kheti" to 75,
+        "khabar" to 80,
+        "khirki" to 70,
+        "kolom" to 72,
+        "taka" to 82,
+        "rupiya" to 74,
+        "sabun" to 72,
+        "sador" to 74,
+        "sakri" to 76,
+        "samoy" to 74,
+        "soku" to 76,
+        "suli" to 74,
+        "rasta" to 82,
+        "pahar" to 78,
+        "rong" to 74,
+        "son" to 76,
+        "sopon" to 76,
+        "dokari" to 70,
+        "nodi" to 74,
+        "path" to 74,
+        "mukh" to 76,
+        "kan" to 74,
+        "nak" to 74,
+        "nak-te" to 70,
+        "baba" to 80,
+        "ma" to 80,
+        "dada" to 78,
+        "didi" to 76,
+        "bhai" to 76,
+        "boini" to 76,
+        "school" to 80,
+        "saab" to 78,
+
+        // Numbers & Temporal words
+        "eta" to 80,
+        "ekta" to 82,
+        "duita" to 78,
+        "tinta" to 76,
+        "sarita" to 74,
+        "pashta" to 74,
+        "chota" to 72,
+        "sat-ta" to 72,
+        "at-ta" to 72,
+        "naw-ta" to 70,
+        "dos-ta" to 72,
+        "hajar" to 74,
+        "tin" to 72,
+        "tini" to 72,
+        "kuri" to 74,
+        "unish" to 70,
+        "ketiya" to 78,
+        "kile" to 76,
+        "abi" to 82,
+        "itiya" to 80,
+        "aji" to 82,
+        "kali" to 80,
+        "kalkar" to 74,
+        "bosor" to 78,
+        "hapta" to 76,
+        "mah" to 74,
+        "ghonta" to 74,
+        "minit" to 72,
+        "sekon" to 70,
+
+        // Auxiliary elements & Particles (Common in sentence endings)
+        "hoi" to 85,
+        "nai" to 85,
+        "bithobi" to 70,
+        "hataikena" to 76,
+        "rakhibi" to 78,
+        "dibi" to 82,
+        "thakibi" to 78,
+        "jineka" to 78,
+        "khosi" to 74,
+        "thakia" to 78,
+        "loijabi" to 76,
+        "kile-koile" to 82,
+        "sommaan" to 74,
+        "deshke" to 76,
+        "swarg-te" to 78,
+        "pobitro-ase" to 78,
+        "prithibi-tebi" to 78,
+        "lagiase" to 80,
+        "di-thakibi" to 76,
+        "paap-khanke" to 78,
+        "maaf-koridibi" to 78,
+        "dusrakhan" to 78,
+        "porikhate" to 78,
+        "bia-pora" to 76,
+
+        // High priority Nagamese objects & expressions
+        "baigan" to 60,
+        "tamul" to 65,
+        "paan" to 65,
+        "masala" to 65,
+        "supari" to 62,
+        "rosgulla" to 58,
+        "mithai" to 60,
+        "ghiu" to 60,
+        "tel" to 62,
+        "pej" to 60,
+        "moris" to 64,
+        "ada" to 62,
+        "rohun" to 62,
+        "peaj" to 62,
+        "dal" to 68,
+        "torkari" to 68,
+        "mas" to 70,
+        "murgi" to 72,
+        "gahori" to 72,
+        "kukur" to 70,
+        "billi" to 68,
+        "biral" to 68,
+        "mous" to 64,
+        "hati" to 68,
+        "ghora" to 66,
+        "bhalu" to 64,
+        "goru" to 68,
+        "chagol" to 66,
+        "hahu" to 66,
+        "kopou" to 62,
+        "pakhir" to 68,
+        "bilahi" to 64,
+        "kobi" to 64,
+        "lai-pat" to 66,
+        "dhania" to 64,
+        "pat" to 68,
+        "gas" to 70,
+        "ful" to 72,
+        "mati" to 72,
+        "bali" to 70,
+        "pathar" to 74,
+        "nodik" to 68,
+        "nodit" to 68,
+        "khal" to 66,
+        "pukhur" to 68,
+        "samundar" to 70,
+        "hawa" to 74,
+        "megh" to 72,
+        "boros" to 74,
+        "tufan" to 70,
+        "bijli" to 70,
+        "tara" to 70,
+        "suraj" to 74,
+        "beli" to 74,
+        "mat" to 68,
+        "sira" to 66,
+        "muri" to 66,
+        "komola" to 68,
+        "am" to 68,
+        "kela" to 68,
+        "naspati" to 62,
+        "anaras" to 64,
+        "lichu" to 64,
+        "kothal" to 64,
+        "sobji" to 70,
+        "goli" to 66,
+        "choukh" to 62
+    )
+
+    // Local bigram predictor: matches standard word transitions in Nagamese to recommend the next word instantly
+    private val localBigrams = mapOf(
+        "moi" to listOf("ase", "jabo", "bhal", "ahise", "khabo", "kobo"),
+        "tumi" to listOf("ase", "ki", "jabo", "kobo", "keneka", "ahise"),
+        "tai" to listOf("ase", "ahise", "koise", "jabo", "bisi", "hobo"),
+        "bhal" to listOf("ase", "hobo", "manu", "kotha", "hoise"),
+        "ki" to listOf("ase", "hoise", "kotha", "kori", "hobo"),
+        "manu" to listOf("khan", "logote", "bhal", "ase", "pora"),
+        "etu" to listOf("kotha", "bhal", "hobo", "hoise", "nombor"),
+        "nagaland" to listOf("manu", "pora", "bhal", "te", "ase"),
+        "ami" to listOf("khan", "ase", "jabo", "bhal", "ahise"),
+        "kun" to listOf("ase", "ahise", "hobo", "koise"),
+        "kori" to listOf("ase", "hobo", "thakibo", "pise"),
+        "kotha" to listOf("ase", "kobo", "bhal", "hoise"),
+        "aro" to listOf("ki", "bhal", "etu", "moi", "tumi"),
+        "bisi" to listOf("bhal", "kotha", "hobo", "ase", "manu"),
+        "ase" to listOf("na", "aro", "thik", "bhal", "khan"),
+        "hobo" to listOf("na", "aro", "thik", "pise"),
+        "hoise" to listOf("na", "aro", "thik", "pise")
+    )
+
+    /**
+     * Attempts to fetch cached next-word suggestions from memory
+     */
+    fun getCachedSuggestions(contextKey: String): List<String>? {
+        synchronized(geminiCache) {
+            val cached = geminiCache[contextKey]
+            if (cached != null) {
+                Log.d("OfflineEngine", "Cache hit for '$contextKey': $cached")
+            }
+            return cached
+        }
+    }
+
+    /**
+     * Stores successful predictions from Gemini in memory for zero-latency reuse
+     */
+    fun cacheSuggestions(contextKey: String, suggestions: List<String>) {
+        if (suggestions.isEmpty()) return
+        synchronized(geminiCache) {
+            geminiCache[contextKey] = suggestions
+            Log.d("OfflineEngine", "Cached '$contextKey' -> $suggestions")
+        }
+    }
+
+    /**
+     * Dynamically registers a word typed by the user to personalize matches
+     */
+    fun learnWord(word: String) {
+        val w = word.trim().lowercase()
+        // Skip too short, too long, or non-alphabet strings
+        if (w.length <= 1 || w.length > 20 || w.any { !it.isLetter() }) return
+        
+        // Skip if already a high-ranking dictionary word to save space
+        if (localDictionary.containsKey(w) && (localDictionary[w] ?: 0) > 40) return
+
+        synchronized(userWords) {
+            val count = userWords[w] ?: 0
+            userWords[w] = count + 1
+            Log.d("OfflineEngine", "Learned word: '$w' (Count: ${count + 1})")
+        }
+    }
+
+    /**
+     * Performs instant local prefix-matching for actively-typing autocomplete (0ms delay)
+     */
+    fun getPrefixMatches(prefix: String): List<String> {
+        val p = prefix.trim().lowercase()
+        if (p.isEmpty()) return emptyList()
+
+        val candidates = mutableListOf<Pair<String, Int>>()
+
+        // 1. Check user-typed words and give them a priority weight boost
+        synchronized(userWords) {
+            for ((word, freq) in userWords) {
+                if (word.startsWith(p)) {
+                    candidates.add(word to (freq * 50 + 100))
+                }
+            }
+        }
+
+        // 2. Fetch matches from local precompiled vocabulary
+        for ((word, freq) in localDictionary) {
+            if (word.startsWith(p)) {
+                candidates.add(word to freq)
+            }
+        }
+
+        // 3. Remove duplicates, taking the highest frequency ranking
+        val uniqueCandidates = candidates
+            .groupBy { it.first }
+            .map { entry -> entry.key to entry.value.maxOf { it.second } }
+
+        // 4. Sort and yield the top 3 items
+        val result = uniqueCandidates
+            .sortedByDescending { it.second }
+            .map { it.first }
+            .take(3)
+            
+        Log.d("OfflineEngine", "Prefix matches for '$p': $result")
+        return result
+    }
+
+    /**
+     * Performs instant local next-word bigram prediction (0ms delay)
+     */
+    fun getLocalNextWordPredictions(lastWord: String): List<String> {
+        val lw = lastWord.trim().lowercase()
+        if (lw.isEmpty()) return getPopularWords()
+
+        // 1. Fetch precompiled next-word bigrams
+        val transitions = localBigrams[lw]
+        if (transitions != null && transitions.isNotEmpty()) {
+            Log.d("OfflineEngine", "Bigram transitions for '$lw': $transitions")
+            return transitions.take(3)
+        }
+
+        // 2. Fallback to general popular words (filtered to make sure we don't repeat the same word)
+        val fallback = getPopularWords().filter { it != lw }.take(3)
+        Log.d("OfflineEngine", "Fallback transitions for '$lw': $fallback")
+        return fallback
+    }
+
+    /**
+     * Standard startup/fallback suggestion set
+     */
+    fun getPopularWords(): List<String> {
+        return listOf("moi", "tumi", "ase")
+    }
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Likhibi Keyboard</string>
+    <string name="ime_name">Likhibi Keyboard</string>
+    <string name="subtype_label">Nagamese + English</string>
+
+    <string name="settings_title">Likhibi Keyboard</string>
+    <string name="btn_enable">Enable keyboard</string>
+    <string name="btn_select">Select as current keyboard</string>
+    <string name="settings_hint">After enabling, use “Select” to switch keyboards in any app.</string>
+</resources>
+
