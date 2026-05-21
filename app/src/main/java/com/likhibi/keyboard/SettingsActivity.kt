@@ -11,6 +11,7 @@ import android.os.Vibrator
 import android.provider.Settings
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.SeekBar
@@ -31,7 +32,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var lblHaptic: TextView
     private lateinit var seekHaptic: SeekBar
-    private lateinit var themeGroup: RadioGroup
+
     private lateinit var fontSpinner: Spinner
     private lateinit var switchSound: SwitchMaterial
     private lateinit var lblSoundVolume: TextView
@@ -47,56 +48,43 @@ class SettingsActivity : AppCompatActivity() {
 
         prefs = getSharedPreferences("likhibi_keyboard_prefs", Context.MODE_PRIVATE)
 
-        // Setup Buttons
-        findViewById<LinearLayout>(R.id.btn_enable).setOnClickListener {
-            performHapticClick()
+        findViewById<Button>(R.id.btn_enable_keyboard).setOnClickListener {
             startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
         }
 
-        findViewById<LinearLayout>(R.id.btn_select).setOnClickListener {
-            performHapticClick()
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        findViewById<Button>(R.id.btn_select_keyboard).setOnClickListener {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showInputMethodPicker()
         }
 
-        // Theme Selector
-        themeGroup = findViewById(R.id.theme_group)
-        val currentTheme = prefs.getString("selected_theme", "theme_midnight") ?: "theme_midnight"
-        when (currentTheme) {
-            "theme_oled" -> themeGroup.check(R.id.radio_theme_oled)
-            "theme_oneplus" -> themeGroup.check(R.id.radio_theme_oneplus)
-            "theme_aurora" -> themeGroup.check(R.id.radio_theme_aurora)
-            "theme_ocean" -> themeGroup.check(R.id.radio_theme_ocean)
-            "theme_custom_wallpaper" -> themeGroup.check(R.id.radio_theme_custom_wallpaper)
-            else -> themeGroup.check(R.id.radio_theme_midnight)
-        }
+        // Theme Selection via Spinner
+        val themeSpinner: Spinner = findViewById(R.id.spinner_theme)
+        val themeOptions = arrayOf("Likhibi's Light", "Likhibi's Dark", "Slate Grey", "Navy Blue", "Earth Tone", "Custom Photo")
+        val themeValues = arrayOf("theme_classic_light", "theme_oled_black", "theme_slate_grey", "theme_navy_blue", "theme_earth_tone", "theme_custom_wallpaper")
+        val themeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, themeOptions)
+        themeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        themeSpinner.adapter = themeAdapter
 
-        themeGroup.setOnCheckedChangeListener { _, checkedId ->
-            performHapticClick()
-            val themeKey = when (checkedId) {
-                R.id.radio_theme_oled -> "theme_oled"
-                R.id.radio_theme_oneplus -> "theme_oneplus"
-                R.id.radio_theme_aurora -> "theme_aurora"
-                R.id.radio_theme_ocean -> "theme_ocean"
-                R.id.radio_theme_custom_wallpaper -> "theme_custom_wallpaper"
-                else -> "theme_midnight"
-            }
-            prefs.edit().putString("selected_theme", themeKey).apply()
-            Toast.makeText(this, "Theme updated successfully!", Toast.LENGTH_SHORT).show()
-        }
+        val currentTheme = prefs.getString("selected_theme", "theme_oled_black") ?: "theme_oled_black"
+        themeSpinner.setSelection(themeValues.indexOf(currentTheme).coerceAtLeast(0))
+        var isInitialSelection = true
 
-        findViewById<LinearLayout>(R.id.btn_pick_wallpaper).setOnClickListener {
-            performHapticClick()
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
+        themeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (!isInitialSelection) performHapticClick()
+                if (themeValues[position] == "theme_custom_wallpaper" && !isInitialSelection) {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+                    startActivityForResult(intent, RC_PICK_WALLPAPER)
+                }
+                isInitialSelection = false
             }
-            startActivityForResult(intent, RC_PICK_WALLPAPER)
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         // Font Selection
         fontSpinner = findViewById(R.id.spinner_font)
-        val fontOptions = arrayOf("Default", "Light", "Medium", "Serif", "Monospace", "Cursive")
-        val fontValues = arrayOf("sans-serif", "sans-serif-light", "sans-serif-medium", "serif", "monospace", "cursive")
+        val fontOptions = arrayOf("Modern Clean (Default)", "Elegant Light", "Bold Impact", "Classic Serif", "Playful Casual", "Monospace Typewriter")
+        val fontValues = arrayOf("sans-serif", "sans-serif-light", "sans-serif-black", "serif", "casual", "monospace")
         val fontAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, fontOptions)
         fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         fontSpinner.adapter = fontAdapter
@@ -198,7 +186,7 @@ class SettingsActivity : AppCompatActivity() {
                     outputStream.close()
 
                     prefs.edit().putString("selected_theme", "theme_custom_wallpaper").apply()
-                    themeGroup.check(R.id.radio_theme_custom_wallpaper)
+                    findViewById<Spinner>(R.id.spinner_theme).setSelection(5) // Index 5 is Custom Photo
 
                     Toast.makeText(this, "Custom photo applied successfully!", Toast.LENGTH_SHORT).show()
                 }

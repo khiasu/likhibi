@@ -1,7 +1,8 @@
-# Likhibi Keyboard
+# Likhibi
+**Nagamese Keyboard**
 
 > [!IMPORTANT]
-> 📥 **[CLICK HERE TO DOWNLOAD THE LIKHIBI APK](https://github.com/khiasu/likhibi/raw/main/apk/likhibi-keyboard.apk)**
+> 📥 **[CLICK HERE TO DOWNLOAD THE LATEST LIKHIBI APK](https://github.com/khiasu/likhibi/raw/main/apk/app-debug.apk)**
 > 
 > *Simply click the link above, download the file, and install it on your Android device to start testing immediately!*
 

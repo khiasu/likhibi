@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Dark mode theme for settings app -->
     <style name="Theme.LikhibiKeyboard" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="android:statusBarColor">#12131A</item>
+        <item name="android:statusBarColor">#000000</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
-        <item name="android:navigationBarColor">#12131A</item>
-        <item name="colorPrimary">#00E5FF</item>
-        <item name="colorPrimaryVariant">#12131A</item>
-        <item name="colorOnPrimary">#000000</item>
-        <item name="colorSecondary">#00E5FF</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="colorPrimary">#D32F2F</item>
+        <item name="colorPrimaryVariant">#B71C1C</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#D32F2F</item>
         <item name="colorOnSecondary">#000000</item>
-        <item name="android:colorBackground">#12131A</item>
-        <item name="colorSurface">#1A1C24</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="colorSurface">#121212</item>
         <item name="colorOnSurface">#FFFFFF</item>
     </style>
 </resources>

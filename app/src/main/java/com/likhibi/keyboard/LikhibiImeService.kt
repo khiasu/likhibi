@@ -88,6 +88,7 @@ class LikhibiImeService : InputMethodService() {
 
         for (tv in suggestionViews) {
             tv.setOnClickListener {
+                keyboardView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
                 val word = (it as TextView).text?.toString()?.trim().orEmpty()
                 if (word.isNotEmpty()) {
                     acceptSuggestion(word)
@@ -110,18 +111,22 @@ class LikhibiImeService : InputMethodService() {
         btnToolSettings = view.findViewById(R.id.btn_tool_settings)
 
         btnToggle?.setOnClickListener {
+            keyboardView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
             toggleToolbar()
         }
 
         btnToolClip?.setOnClickListener {
+            keyboardView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
             keyboardView?.showClipboard()
         }
 
         btnToolTheme?.setOnClickListener {
+            keyboardView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
             keyboardView?.showThemeSwitcher()
         }
 
         btnToolSettings?.setOnClickListener {
+            keyboardView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
             val intent = Intent(this, SettingsActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
@@ -144,6 +149,10 @@ class LikhibiImeService : InputMethodService() {
         keyboardView?.applyTheme()
         applySuggestionBarTheme()
 
+        keyboardView?.themeChangeListener = {
+            applySuggestionBarTheme()
+        }
+
         registerClipboardListener()
 
         return view
@@ -162,29 +171,33 @@ class LikhibiImeService : InputMethodService() {
         )
 
         val c = when (theme) {
-            "theme_oled" -> BarColors(
-                Color.BLACK, Color.parseColor("#888888"), Color.WHITE,
-                Color.WHITE, Color.parseColor("#1A1A1A"), Color.parseColor("#CCCCCC")
+            "theme_classic_light" -> BarColors(
+                Color.parseColor("#F5F5F0"), Color.parseColor("#757575"), Color.parseColor("#D32F2F"),
+                Color.parseColor("#D32F2F"), Color.parseColor("#E0E0E0"), Color.parseColor("#424242")
             )
-            "theme_oneplus" -> BarColors(
-                Color.parseColor("#0D0E14"), Color.parseColor("#A0A5B5"), Color.parseColor("#00E5FF"),
-                Color.parseColor("#00E5FF"), Color.parseColor("#1E202B"), Color.WHITE
+            "theme_oled_black" -> BarColors(
+                Color.parseColor("#000000"), Color.parseColor("#888888"), Color.parseColor("#FFFFFF"),
+                Color.parseColor("#FFFFFF"), Color.parseColor("#1A1A1A"), Color.parseColor("#CCCCCC")
             )
-            "theme_aurora" -> BarColors(
-                Color.argb(60, 58, 28, 113), Color.argb(200, 255, 255, 255), Color.parseColor("#FFAF7B"),
-                Color.parseColor("#FFAF7B"), Color.argb(40, 255, 255, 255), Color.WHITE
+            "theme_slate_grey" -> BarColors(
+                Color.parseColor("#263238"), Color.parseColor("#90A4AE"), Color.parseColor("#80CBC4"),
+                Color.parseColor("#80CBC4"), Color.parseColor("#1C272C"), Color.parseColor("#CFD8DC")
             )
-            "theme_ocean" -> BarColors(
-                Color.argb(60, 2, 170, 176), Color.argb(200, 255, 255, 255), Color.parseColor("#00CDAC"),
-                Color.parseColor("#00CDAC"), Color.argb(40, 255, 255, 255), Color.WHITE
+            "theme_navy_blue" -> BarColors(
+                Color.parseColor("#0D1B2A"), Color.parseColor("#778DA9"), Color.parseColor("#E0E1DD"),
+                Color.parseColor("#E0E1DD"), Color.parseColor("#08121E"), Color.parseColor("#778DA9")
+            )
+            "theme_earth_tone" -> BarColors(
+                Color.parseColor("#3E2723"), Color.parseColor("#8D6E63"), Color.parseColor("#FFCC80"),
+                Color.parseColor("#FFCC80"), Color.parseColor("#301E1A"), Color.parseColor("#BCAAA4")
             )
             "theme_custom_wallpaper" -> BarColors(
-                Color.argb(140, 18, 19, 26), Color.argb(200, 255, 255, 255), Color.parseColor("#00E5FF"),
-                Color.parseColor("#00E5FF"), Color.argb(40, 255, 255, 255), Color.WHITE
+                Color.argb(80, 0, 0, 0), Color.argb(220, 255, 255, 255), Color.parseColor("#00E5FF"),
+                Color.WHITE, Color.argb(40, 255, 255, 255), Color.WHITE
             )
-            else -> BarColors( // Midnight
-                Color.parseColor("#1A1C24"), Color.parseColor("#A0A5B5"), Color.parseColor("#00E5FF"),
-                Color.parseColor("#00E5FF"), Color.parseColor("#2E313D"), Color.WHITE
+            else -> BarColors(
+                Color.parseColor("#000000"), Color.parseColor("#888888"), Color.parseColor("#FFFFFF"),
+                Color.parseColor("#FFFFFF"), Color.parseColor("#1A1A1A"), Color.parseColor("#CCCCCC")
             )
         }
 
@@ -303,6 +316,17 @@ class LikhibiImeService : InputMethodService() {
         }
 
         super.onStartInput(attribute, restarting)
+
+        val enterAction = attribute?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
+        val enterLabel = when (enterAction) {
+            EditorInfo.IME_ACTION_SEARCH -> "🔍"
+            EditorInfo.IME_ACTION_GO -> "➔"
+            EditorInfo.IME_ACTION_SEND -> "➤"
+            EditorInfo.IME_ACTION_NEXT -> "↵"
+            EditorInfo.IME_ACTION_DONE -> "✓"
+            else -> "↵"
+        }
+        keyboardView?.enterKeyLabel = enterLabel
         currentComposing = StringBuilder()
         suggestionsEnabledForField = attribute?.let { !isPasswordField(it) } ?: true
         updateSuggestionsForCurrentState()
@@ -344,8 +368,24 @@ class LikhibiImeService : InputMethodService() {
             KEYCODE_EMOJI_SWITCH -> handleEmojiSwitch()
             10 -> handleEnter(ic)
             32 -> handleSpace(ic)
+            Int.MAX_VALUE -> ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_RIGHT))
+            Int.MIN_VALUE -> ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_LEFT))
             else -> handleCharacter(ic, code)
         }
+    }
+
+    private var lastShiftTime = 0L
+
+    private fun handleShift() {
+        val now = System.currentTimeMillis()
+        if (now - lastShiftTime < 300) {
+            keyboardView?.isCapsLock = true
+            keyboardView?.setShifted(true)
+        } else {
+            keyboardView?.isCapsLock = false
+            keyboardView?.setShifted(!(keyboardView?.isShifted() ?: false))
+        }
+        lastShiftTime = now
     }
 
     private fun handleText(text: String) {
@@ -369,14 +409,17 @@ class LikhibiImeService : InputMethodService() {
     }
 
     private fun handleCharacter(ic: InputConnection, primaryCode: Int) {
-        val ch = primaryCode.toChar()
+        var ch = primaryCode.toChar().toString()
+        if (keyboardView?.isShifted() == true) {
+            ch = ch.uppercase()
+        }
         currentComposing.append(ch)
         ic.setComposingText(currentComposing, 1)
         updateSuggestionsForCurrentState()
         
         // Auto-shift back to lowercase after typing a letter
         val kv = keyboardView ?: return
-        if (kv.isShifted()) {
+        if (kv.isShifted() && !kv.isCapsLock) {
             kv.setShifted(false)
         }
     }
@@ -422,7 +465,12 @@ class LikhibiImeService : InputMethodService() {
             ic.finishComposingText()
             currentComposing = StringBuilder()
         }
-        ic.commitText("\n", 1)
+        val action = currentInputEditorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
+        if (action != null && action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
+            ic.performEditorAction(action)
+        } else {
+            ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
+        }
 
         // Dynamically learn the bigram from the last 2 committed words
         val last2 = getLastWords(2)
@@ -433,10 +481,6 @@ class LikhibiImeService : InputMethodService() {
         updateSuggestionsForCurrentState()
     }
 
-    private fun handleShift() {
-        val kv = keyboardView ?: return
-        kv.setShifted(!kv.isShifted())
-    }
 
     private fun handleSymbolSwitch() {
         val kv = keyboardView ?: return

@@ -1,376 +1,336 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="140dp"
-            app:contentScrim="?android:attr/colorBackground"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:titleCollapseMode="fade">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginStart="24dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:layout_marginEnd="12dp"
-                    android:contentDescription="Likhibi Logo" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Likhibi Settings"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="32sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+    android:background="?android:attr/colorBackground"
+    android:fitsSystemWindows="true">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="40dp">
+            android:orientation="vertical">
 
-            <!-- CATEGORY: Setup -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Setup"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Row: Enable -->
+            <!-- Header Section -->
             <LinearLayout
-                android:id="@+id/btn_enable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
+                android:gravity="center"
+                android:paddingTop="48dp"
+                android:paddingBottom="32dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:scaleType="centerCrop" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Enable in Settings"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
+                    android:text="Likhibi"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp" />
+                
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Activate Likhibi in Android system settings"
+                    android:text="Nagamese Keyboard"
                     android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:textSize="13sp"
-                    android:layout_marginTop="2dp" />
+                    android:alpha="0.7"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+                
             </LinearLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="24dp" />
-
-            <!-- Row: Select -->
             <LinearLayout
-                android:id="@+id/btn_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp">
+
+                <!-- Setup Buttons -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_enable_keyboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Enable Keyboard"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_select_keyboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
                     android:text="Select Keyboard"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
+                    app:cornerRadius="12dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <!-- Personalization Card -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Set Likhibi as your default input method"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:textSize="13sp"
-                    android:layout_marginTop="2dp" />
-            </LinearLayout>
+                    android:text="PERSONALIZATION"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp" />
 
-            <!-- CATEGORY: Appearance -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Appearance"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Row: Theme -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="12dp">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Keyboard Theme"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-                
-                <HorizontalScrollView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginHorizontal="-12dp">
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    android:layout_marginBottom="24dp">
                     
-                    <RadioGroup
-                        android:id="@+id/theme_group"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Theme Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="12dp"
+                            android:gravity="center_vertical">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Keyboard Theme"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="16sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Choose your aesthetic"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                            <Spinner
+                                android:id="@+id/spinner_theme"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:spinnerMode="dialog"
+                                android:backgroundTint="?attr/colorOnSurface" />
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="16dp"/>
+
+                        <!-- Font Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="12dp"
+                            android:gravity="center_vertical">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Keyboard Font"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="16sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Typeface applied to all keys"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                            <Spinner
+                                android:id="@+id/spinner_font"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:spinnerMode="dialog"
+                                android:backgroundTint="?attr/colorOnSurface" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Sensory Feedback Card -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SENSORY FEEDBACK"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    android:layout_marginBottom="24dp">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Haptic Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Haptic Feedback"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="16sp" />
+                            <TextView
+                                android:id="@+id/lbl_haptic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Vibration strength: 10ms"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                            <SeekBar
+                                android:id="@+id/seek_haptic"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:max="50"
+                                android:progress="10"
+                                android:progressTint="?attr/colorPrimary"
+                                android:thumbTint="?attr/colorPrimary" />
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="16dp"/>
+
+                        <!-- Sound Toggle Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="12dp"
+                            android:gravity="center_vertical">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Key Press Sounds"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="16sp" />
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switch_sound"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:useMaterialThemeColors="true" />
+                        </LinearLayout>
+                        
+                        <!-- Sound Volume Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp">
+                            <TextView
+                                android:id="@+id/lbl_sound_volume"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Volume: 50%"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:textSize="13sp" />
+                            <SeekBar
+                                android:id="@+id/seek_sound_volume"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:max="100"
+                                android:progress="50"
+                                android:progressTint="?attr/colorPrimary"
+                                android:thumbTint="?attr/colorPrimary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Tools Card -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TOOLS"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+                    
+                    <LinearLayout
+                        android:id="@+id/btn_clear_clipboard"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="12dp">
-                        <RadioButton android:id="@+id/radio_theme_midnight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Midnight" android:textColor="?attr/colorOnSurface" android:buttonTint="?attr/colorPrimary" android:layout_marginEnd="16dp" />
-                        <RadioButton android:id="@+id/radio_theme_oled" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dark" android:textColor="?attr/colorOnSurface" android:buttonTint="?attr/colorPrimary" android:layout_marginEnd="16dp" />
-                        <RadioButton android:id="@+id/radio_theme_oneplus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Neon" android:textColor="?attr/colorOnSurface" android:buttonTint="?attr/colorPrimary" android:layout_marginEnd="16dp" />
-                        <RadioButton android:id="@+id/radio_theme_aurora" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sunset" android:textColor="?attr/colorOnSurface" android:buttonTint="?attr/colorPrimary" android:layout_marginEnd="16dp" />
-                        <RadioButton android:id="@+id/radio_theme_ocean" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ocean" android:textColor="?attr/colorOnSurface" android:buttonTint="?attr/colorPrimary" android:layout_marginEnd="16dp" />
-                        <RadioButton android:id="@+id/radio_theme_custom_wallpaper" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Custom" android:textColor="?attr/colorOnSurface" android:buttonTint="?attr/colorPrimary" />
-                    </RadioGroup>
-                </HorizontalScrollView>
+                        android:padding="16dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical">
+                        
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Clear Clipboard History"
+                            android:textColor="#FF5252"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
             </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="24dp" />
-
-            <!-- Row: Custom Wallpaper -->
-            <LinearLayout
-                android:id="@+id/btn_pick_wallpaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Choose Custom Image"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Select a background for the Custom theme"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:textSize="13sp"
-                    android:layout_marginTop="2dp" />
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="24dp" />
-
-            <!-- Row: Font -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                android:gravity="center_vertical">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Keyboard Font"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Typeface applied to all keys"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.6"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-                
-                <Spinner
-                    android:id="@+id/spinner_font"
-                    android:layout_width="140dp"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="?attr/colorOnSurface" />
-            </LinearLayout>
-
-            <!-- CATEGORY: Feedback -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Feedback"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Row: Sound Toggle -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                android:gravity="center_vertical">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Key Press Sounds"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_sound"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:useMaterialThemeColors="true" />
-            </LinearLayout>
-            
-            <!-- Row: Sound Volume -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingBottom="16dp">
-                <TextView
-                    android:id="@+id/lbl_sound_volume"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Volume: 50%"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:textSize="13sp" />
-                <SeekBar
-                    android:id="@+id/seek_sound_volume"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:max="100"
-                    android:progress="50"
-                    android:progressTint="?attr/colorPrimary"
-                    android:thumbTint="?attr/colorPrimary" />
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="24dp" />
-
-            <!-- Row: Haptics -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Haptic Feedback"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-                <TextView
-                    android:id="@+id/lbl_haptic"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vibration strength: 10ms"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:textSize="13sp"
-                    android:layout_marginTop="2dp" />
-                <SeekBar
-                    android:id="@+id/seek_haptic"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:max="50"
-                    android:progress="10"
-                    android:progressTint="?attr/colorPrimary"
-                    android:thumbTint="?attr/colorPrimary" />
-            </LinearLayout>
-
-            <!-- CATEGORY: Tools -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tools"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Row: Clear Clipboard -->
-            <LinearLayout
-                android:id="@+id/btn_clear_clipboard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Clear Clipboard History"
-                    android:textColor="#FF5252"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
