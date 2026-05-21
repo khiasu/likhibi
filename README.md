@@ -1,5 +1,7 @@
 # Likhibi Keyboard
 
+[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/khiasu/likhibi/raw/main/apk/likhibi-keyboard.apk)
+
 Likhibi is an Android custom keyboard built specifically for the Nagamese language. It prioritizes a fast, highly responsive typing experience coupled with a modern, dynamic aesthetic.
 
 ## Overview
