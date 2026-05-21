@@ -137,6 +137,19 @@
                                 android:spinnerMode="dialog"
                                 android:backgroundTint="?attr/colorOnSurface" />
                         </LinearLayout>
+                        
+                        <!-- Dedicated Change Wallpaper Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_change_wallpaper"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginBottom="12dp"
+                            android:text="Change Photo"
+                            android:visibility="gone"
+                            app:cornerRadius="8dp"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="16dp"/>
 

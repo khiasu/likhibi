@@ -69,13 +69,25 @@ class SettingsActivity : AppCompatActivity() {
         themeSpinner.setSelection(themeValues.indexOf(currentTheme).coerceAtLeast(0))
         var isInitialSelection = true
 
+        val btnChangeWallpaper: Button = findViewById(R.id.btn_change_wallpaper)
+        btnChangeWallpaper.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+            startActivityForResult(intent, RC_PICK_WALLPAPER)
+        }
+
         themeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!isInitialSelection) performHapticClick()
-                if (themeValues[position] == "theme_custom_wallpaper" && !isInitialSelection) {
+                
+                val isCustomTheme = themeValues[position] == "theme_custom_wallpaper"
+                btnChangeWallpaper.visibility = if (isCustomTheme) View.VISIBLE else View.GONE
+                
+                if (isCustomTheme && !isInitialSelection) {
                     val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
                     startActivityForResult(intent, RC_PICK_WALLPAPER)
                 }
+                
+                prefs.edit().putString("selected_theme", themeValues[position]).apply()
                 isInitialSelection = false
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
