@@ -1,0 +1,27 @@
+# Gradle & Android
+.gradle/
+.idea/
+.vscode/
+local.properties
+**/build/
+*.iml
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# MS Office temporary lock files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Logs & temp
+*.log
+*.tmp

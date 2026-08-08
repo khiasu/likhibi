@@ -1,0 +1,13 @@
+{
+  "status": "COMPLETED",
+  "vocabulary_size": 21000,
+  "ngram_total_tokens": 185945,
+  "perplexity": 45.59,
+  "exported_assets": [
+    "datasets/processed/prediction_models/unigrams.json",
+    "datasets/processed/prediction_models/bigrams.json",
+    "datasets/processed/prediction_models/trigrams.json",
+    "datasets/processed/prediction_models/trie_index.json",
+    "datasets/processed/prediction_models/model_meta.json"
+  ]
+}

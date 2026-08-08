@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#8000E5FF">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#1A00E5FF" /> <!-- Subtle glowing cyan translucency -->
+            <stroke
+                android:width="1.5dp"
+                android:color="#00E5FF" /> <!-- OnePlus Neon Cyan Accent Border -->
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+</ripple>
