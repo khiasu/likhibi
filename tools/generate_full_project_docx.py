@@ -112,14 +112,14 @@ def create_full_scope_10_slide_docx(output_path):
             "num": "SLIDE 1",
             "title": "Title Slide (Full Scope Project Metadata)",
             "bullets": [
-                "Title: LIKHIBI: DEVELOPMENT OF NATURAL LANGUAGE PROCESSING RESOURCES, PREDICTIVE INPUT SYSTEM, AND PROTOTYPE NEURAL MACHINE TRANSLATION FOR NAGAMESE CREOLE",
+                "Title: Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole",
                 "Review: Full Major Project Proposal Defense (Project Review – I)",
-                "Domain: Natural Language Processing / Machine Translation / Mobile Systems",
+                "Domain: Natural Language Processing / Machine Translation / Computational Linguistics",
                 "Target Language: Nagamese Creole (Lingua Franca of Nagaland)",
                 "Presenter: [Your Name] | Roll No / USN: [Your Roll Number] | Dept of CSE",
                 "Project Coordinators: Mr. Nzanthung Odyuo & Mr. Nokshangthemba"
             ],
-            "notes": "Respected Project Coordinators Mr. Nzanthung Odyuo sir, Mr. Nokshangthemba sir, and evaluation committee members. I am [Your Name], presenting my full major project proposal: 'Likhibi: Development of NLP Resources, Predictive Input System, and Prototype Neural Machine Translation for Nagamese Creole'. Nagamese is the primary lingua franca across Nagaland, but remains classified as a Low-Resource Language. This project builds the complete NLP resource stack for Nagamese—including a 20,000-entry dictionary, parallel corpus, N-gram prediction engine, baseline Neural Machine Translation, and an offline Android keyboard interface."
+            "notes": "Respected Project Coordinators Mr. Nzanthung Odyuo sir, Mr. Nokshangthemba sir, and evaluation committee members. I am [Your Name], presenting my full major project proposal: 'Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole'. Nagamese is the primary lingua franca across Nagaland, but remains classified as a Low-Resource Language. This project builds the complete NLP resource stack for Nagamese—including a 20,000-entry dictionary, parallel corpus, N-gram prediction engine, baseline Neural Machine Translation, and an offline Android keyboard interface."
         },
         {
             "num": "SLIDE 2",

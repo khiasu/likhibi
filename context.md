@@ -1,7 +1,7 @@
 # LIKHIBI — Project Context & Tracking Document
 
 > **Role**: Senior Software Architect & NLP Research Engineer  
-> **Project**: LIKHIBI — Development of Foundational Language Resources for Nagamese  
+> **Project**: Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole  
 > **Type**: B.Tech Final Year Major Project (CSE 7th Sem)  
 > **Primary Specification**: Research Proposal Review–I (Khiasuthong T, RegNo: 2306107010)  
 > **Current Phase**: Phase 4 — Repository Preparation & Architectural Restructuring  

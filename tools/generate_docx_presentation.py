@@ -127,15 +127,15 @@ def create_presentation_docx(output_path):
             "num": "SLIDE 1",
             "title": "Title Slide",
             "bullets": [
-                "Project Title: LIKHIBI: DEVELOPMENT OF NATURAL LANGUAGE PROCESSING RESOURCES AND INTELLIGENT PREDICTIVE INPUT SYSTEM FOR NAGAMESE CREOLE",
+                "Project Title: Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole",
                 "Review Level: Major Project Proposal (Project Review – I)",
-                "Domain: Natural Language Processing / Mobile Computational Systems",
+                "Domain: Natural Language Processing / Computational Linguistics",
                 "Target Language: Nagamese Creole (Lingua Franca of Nagaland)",
                 "Presenter: [Your Name] | Roll No / USN: [Your Roll Number]",
                 "Department: Department of Computer Science & Engineering",
                 "Project Coordinators: Mr. Nzanthung Odyuo & Mr. Nokshangthemba"
             ],
-            "notes": "Respected Project Coordinators Mr. Nzanthung Odyuo sir, Mr. Nokshangthemba sir, and esteemed members of the evaluation committee, good morning. I am [Your Name], presenting my major project proposal titled 'Likhibi: Development of Natural Language Processing Resources and Intelligent Predictive Input System for Nagamese Creole'. Nagamese is the primary spoken lingua franca across Nagaland, connecting diverse ethnic tribes. However, in computer science and NLP, it remains an extremely Low-Resource Language (LRL). This project aims to bridge this digital divide by building native computational NLP resources and an intelligent predictive input engine running directly on mobile devices."
+            "notes": "Respected Project Coordinators Mr. Nzanthung Odyuo sir, Mr. Nokshangthemba sir, and esteemed members of the evaluation committee, good morning. I am [Your Name], presenting my major project proposal titled 'Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole'. Nagamese is the primary spoken lingua franca across Nagaland, connecting diverse ethnic tribes. However, in computer science and NLP, it remains an extremely Low-Resource Language (LRL). This project aims to bridge this digital divide by building native computational NLP resources and an intelligent predictive input engine running directly on mobile devices."
         },
         {
             "num": "SLIDE 2",

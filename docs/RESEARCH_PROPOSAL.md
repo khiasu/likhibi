@@ -1,4 +1,4 @@
-# LIKHIBI: Development of Foundational Language Resources for Nagamese
+# Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole
 
 **Major Project Proposal (Review – I)**  
 **Submitted By**: Khiasuthong T (RegNo: 2306107010), B.Tech CSE 7th Sem  

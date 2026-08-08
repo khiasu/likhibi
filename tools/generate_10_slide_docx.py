@@ -113,14 +113,14 @@ def create_10_slide_docx(output_path):
             "num": "SLIDE 1",
             "title": "Title Slide",
             "bullets": [
-                "Title: LIKHIBI: DEVELOPMENT OF NLP RESOURCES AND INTELLIGENT PREDICTIVE INPUT SYSTEM FOR NAGAMESE CREOLE",
+                "Title: Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole",
                 "Review: Major Project Proposal Defense (Project Review – I)",
                 "Domain: Natural Language Processing / Computational Linguistics",
                 "Target Language: Nagamese Creole (Lingua Franca of Nagaland)",
                 "Presenter: [Your Name] | Roll No / USN: [Your Roll Number] | Dept of CSE",
                 "Project Coordinators: Mr. Nzanthung Odyuo & Mr. Nokshangthemba"
             ],
-            "notes": "Respected Project Coordinators Mr. Nzanthung Odyuo sir, Mr. Nokshangthemba sir, and evaluation committee members. I am [Your Name], presenting my project proposal: 'Likhibi: Development of NLP Resources and Intelligent Predictive Input System for Nagamese Creole'. Nagamese is the primary spoken lingua franca across Nagaland, but remains a Low-Resource Language in computer science. This project builds native computational NLP resources and an offline predictive text engine for mobile devices."
+            "notes": "Respected Project Coordinators Mr. Nzanthung Odyuo sir, Mr. Nokshangthemba sir, and evaluation committee members. I am [Your Name], presenting my project proposal: 'Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole'. Nagamese is the primary spoken lingua franca across Nagaland, but remains a Low-Resource Language in computer science. This project builds native computational NLP resources and an offline predictive text engine for mobile devices."
         },
         {
             "num": "SLIDE 2",
