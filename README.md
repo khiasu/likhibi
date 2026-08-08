@@ -1,7 +1,4 @@
-# Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole
-
-**Major Project Proposal (B.Tech CSE 7th Semester)**  
-**Author**: Khiasuthong T (RegNo: 2306107010)  
+# Likhibi: Computational Resource Curation, Contextual Language Modeling, and Prototype Neural Translation for Nagamese Creole  
 
 ---
 
