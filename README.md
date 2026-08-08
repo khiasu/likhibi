@@ -57,14 +57,3 @@ While Nagamese is widely spoken in daily life, it remains severely under-resourc
 ```
 
 ---
-
-## 🚀 Research Roadmap Summary
-
-- **Phase I (Month 1)**: Architecture Restructuring & Requirements Analysis *(Current Phase)*
-- **Phase II (Month 2–3)**: Vocabulary Collection & Parallel Corpus Development
-- **Phase III (Month 3–4)**: Lexical Database Development & Data Preprocessing
-- **Phase IV (Month 4–5)**: Development of Contextual Word Prediction Engine
-- **Phase V (Month 5–6)**: Prototype Machine Translation
-- **Phase VI (Month 6)**: Android Integration, Evaluation & Thesis Documentation
-
-For detailed technical specifications, refer to [docs/ARCHITECTURE.md](file:///f:/likhibi-main/docs/ARCHITECTURE.md) and [docs/NLP_PIPELINE.md](file:///f:/likhibi-main/docs/NLP_PIPELINE.md).
