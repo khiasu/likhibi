@@ -1,5 +1,6 @@
 package com.likhibi.android
 
+import com.likhibi.keyboard.R
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
@@ -48,7 +49,7 @@ class CustomKeyboardView @JvmOverloads constructor(
     var isCapsLock = false
     var enterKeyLabel = "↵"
     private var keyboardMode = Mode.QWERTY
-    private var currentTheme = "theme_midnight"
+    private var currentTheme = "theme_midnight_glass"
     private var lastAppliedTheme: String? = null
     private var cachedThemeColors: ThemeColors? = null
     private var cachedWallpaper: BitmapDrawable? = null
@@ -104,7 +105,10 @@ class CustomKeyboardView @JvmOverloads constructor(
         val clipboardCardPressed: Int = Color.parseColor("#323547"),
         val clipboardEmptyText: Int = Color.parseColor("#808495"),
         val deleteColor: Int = Color.parseColor("#FF5252"),
-        val accentColor: Int = Color.parseColor("#00E5FF")
+        val accentColor: Int = Color.parseColor("#00E5FF"),
+        val cornerRadiusDp: Float = 8f,
+        val borderWidthDp: Float = 0f,
+        val borderColor: Int = Color.TRANSPARENT
     )
 
     data class KeyInfo(
@@ -116,10 +120,11 @@ class CustomKeyboardView @JvmOverloads constructor(
     )
 
     var themeChangeListener: (() -> Unit)? = null
+    var wallpaperPickerListener: (() -> Unit)? = null
 
     init {
         orientation = VERTICAL
-        currentTheme = prefs.getString("selected_theme", "theme_midnight") ?: "theme_midnight"
+        currentTheme = prefs.getString("selected_theme", "theme_midnight_glass") ?: "theme_midnight_glass"
         applyTheme()
         initSoundPool()
     }
@@ -187,173 +192,274 @@ class CustomKeyboardView @JvmOverloads constructor(
      * Resolves theme colors based on current theme selection
      */
     private fun getThemeColors(): ThemeColors {
-        val theme = prefs.getString("selected_theme", "theme_oled_black") ?: "theme_oled_black"
+        val theme = prefs.getString("selected_theme", "theme_midnight_glass") ?: "theme_midnight_glass"
         return when (theme) {
-            "theme_classic_light" -> ThemeColors(
-                bgColor = Color.parseColor("#F5F5F0"), // Creme
-                keyBgNormal = Color.parseColor("#FFFFFF"),
-                keyBgNormalPressed = Color.parseColor("#E8E8E3"),
-                keyBgModifier = Color.parseColor("#EBEBE6"),
-                keyBgModifierPressed = Color.parseColor("#DFDFD9"),
-                keyBgAccent = Color.parseColor("#D32F2F"), // Red accent
-                keyBgAccentPressed = Color.parseColor("#B71C1C"),
-                keyTextColorNormal = Color.parseColor("#212121"),
-                keyTextColorModifier = Color.parseColor("#424242"),
-                keyTextColorAccent = Color.WHITE,
-                isGlass = false,
-                hasShadow = true,
-                suggestionBarBg = Color.parseColor("#F5F5F0"),
-                suggestionTextNormal = Color.parseColor("#757575"),
-                suggestionTextAccent = Color.parseColor("#D32F2F"),
-                toolbarToggleColor = Color.parseColor("#D32F2F"),
-                dividerColor = Color.parseColor("#E0E0E0"),
-                clipboardCardBg = Color.parseColor("#FFFFFF"),
-                clipboardCardPressed = Color.parseColor("#F5F5F0"),
-                clipboardEmptyText = Color.parseColor("#9E9E9E"),
-                deleteColor = Color.parseColor("#D32F2F"),
-                accentColor = Color.parseColor("#D32F2F")
-            )
-            "theme_oled_black" -> ThemeColors(
-                bgColor = Color.parseColor("#000000"),
-                keyBgNormal = Color.parseColor("#121212"),
-                keyBgNormalPressed = Color.parseColor("#242424"),
-                keyBgModifier = Color.parseColor("#0A0A0A"),
-                keyBgModifierPressed = Color.parseColor("#1C1C1C"),
-                keyBgAccent = Color.parseColor("#E0E0E0"),
-                keyBgAccentPressed = Color.parseColor("#FFFFFF"),
-                keyTextColorNormal = Color.WHITE,
-                keyTextColorModifier = Color.parseColor("#AAAAAA"),
-                keyTextColorAccent = Color.BLACK,
-                isGlass = false,
-                hasShadow = false,
-                suggestionBarBg = Color.parseColor("#000000"),
-                suggestionTextNormal = Color.parseColor("#888888"),
-                suggestionTextAccent = Color.parseColor("#FFFFFF"),
-                toolbarToggleColor = Color.parseColor("#FFFFFF"),
-                dividerColor = Color.parseColor("#1A1A1A"),
-                clipboardCardBg = Color.parseColor("#0A0A0A"),
-                clipboardCardPressed = Color.parseColor("#1F1F1F"),
-                clipboardEmptyText = Color.parseColor("#555555"),
-                deleteColor = Color.parseColor("#FF5252"),
-                accentColor = Color.parseColor("#FFFFFF")
-            )
-            "theme_slate_grey" -> ThemeColors(
-                bgColor = Color.parseColor("#263238"),
-                keyBgNormal = Color.parseColor("#37474F"),
-                keyBgNormalPressed = Color.parseColor("#455A64"),
-                keyBgModifier = Color.parseColor("#1C272C"),
-                keyBgModifierPressed = Color.parseColor("#2D3E46"),
-                keyBgAccent = Color.parseColor("#80CBC4"),
-                keyBgAccentPressed = Color.parseColor("#4DB6AC"),
-                keyTextColorNormal = Color.parseColor("#ECEFF1"),
-                keyTextColorModifier = Color.parseColor("#CFD8DC"),
-                keyTextColorAccent = Color.parseColor("#263238"),
-                isGlass = false,
-                hasShadow = true,
-                suggestionBarBg = Color.parseColor("#263238"),
-                suggestionTextNormal = Color.parseColor("#90A4AE"),
-                suggestionTextAccent = Color.parseColor("#80CBC4"),
-                toolbarToggleColor = Color.parseColor("#80CBC4"),
-                dividerColor = Color.parseColor("#1C272C"),
-                clipboardCardBg = Color.parseColor("#37474F"),
-                clipboardCardPressed = Color.parseColor("#455A64"),
-                clipboardEmptyText = Color.parseColor("#78909C"),
-                deleteColor = Color.parseColor("#FF5252"),
-                accentColor = Color.parseColor("#80CBC4")
-            )
-            "theme_navy_blue" -> ThemeColors(
-                bgColor = Color.parseColor("#0D1B2A"),
-                keyBgNormal = Color.parseColor("#1B263B"),
-                keyBgNormalPressed = Color.parseColor("#415A77"),
-                keyBgModifier = Color.parseColor("#08121E"),
-                keyBgModifierPressed = Color.parseColor("#152233"),
-                keyBgAccent = Color.parseColor("#E0E1DD"),
-                keyBgAccentPressed = Color.parseColor("#FFFFFF"),
-                keyTextColorNormal = Color.parseColor("#E0E1DD"),
-                keyTextColorModifier = Color.parseColor("#778DA9"),
-                keyTextColorAccent = Color.parseColor("#0D1B2A"),
-                isGlass = false,
-                hasShadow = true,
-                suggestionBarBg = Color.parseColor("#0D1B2A"),
-                suggestionTextNormal = Color.parseColor("#778DA9"),
-                suggestionTextAccent = Color.parseColor("#E0E1DD"),
-                toolbarToggleColor = Color.parseColor("#E0E1DD"),
-                dividerColor = Color.parseColor("#08121E"),
-                clipboardCardBg = Color.parseColor("#1B263B"),
-                clipboardCardPressed = Color.parseColor("#415A77"),
-                clipboardEmptyText = Color.parseColor("#778DA9"),
-                deleteColor = Color.parseColor("#FF5252"),
-                accentColor = Color.parseColor("#E0E1DD")
-            )
-            "theme_earth_tone" -> ThemeColors(
-                bgColor = Color.parseColor("#3E2723"),
-                keyBgNormal = Color.parseColor("#4E342E"),
-                keyBgNormalPressed = Color.parseColor("#5D4037"),
-                keyBgModifier = Color.parseColor("#301E1A"),
-                keyBgModifierPressed = Color.parseColor("#402823"),
-                keyBgAccent = Color.parseColor("#FFCC80"),
-                keyBgAccentPressed = Color.parseColor("#FFB74D"),
-                keyTextColorNormal = Color.parseColor("#EFEBE9"),
-                keyTextColorModifier = Color.parseColor("#BCAAA4"),
-                keyTextColorAccent = Color.parseColor("#3E2723"),
-                isGlass = false,
-                hasShadow = true,
-                suggestionBarBg = Color.parseColor("#3E2723"),
-                suggestionTextNormal = Color.parseColor("#8D6E63"),
-                suggestionTextAccent = Color.parseColor("#FFCC80"),
-                toolbarToggleColor = Color.parseColor("#FFCC80"),
-                dividerColor = Color.parseColor("#301E1A"),
-                clipboardCardBg = Color.parseColor("#4E342E"),
-                clipboardCardPressed = Color.parseColor("#5D4037"),
-                clipboardEmptyText = Color.parseColor("#8D6E63"),
-                deleteColor = Color.parseColor("#FF5252"),
-                accentColor = Color.parseColor("#FFCC80")
-            )
-            "theme_custom_wallpaper" -> ThemeColors(
-                bgColor = Color.TRANSPARENT,
-                keyBgNormal = Color.argb(35, 255, 255, 255),
-                keyBgNormalPressed = Color.argb(85, 255, 255, 255),
-                keyBgModifier = Color.argb(15, 255, 255, 255),
-                keyBgModifierPressed = Color.argb(55, 255, 255, 255),
-                keyBgAccent = Color.argb(120, 0, 229, 255),
-                keyBgAccentPressed = Color.argb(200, 0, 229, 255),
-                keyTextColorNormal = Color.WHITE,
-                keyTextColorModifier = Color.WHITE,
-                keyTextColorAccent = Color.BLACK,
+
+            "theme_midnight_glass" -> ThemeColors(
+                bgColor = Color.parseColor("#080C18"),
+                keyBgNormal = Color.argb(140, 25, 35, 60),
+                keyBgNormalPressed = Color.argb(200, 40, 55, 90),
+                keyBgModifier = Color.argb(100, 18, 25, 45),
+                keyBgModifierPressed = Color.argb(170, 35, 48, 80),
+                keyBgAccent = Color.parseColor("#00E5FF"),
+                keyBgAccentPressed = Color.parseColor("#00B8D4"),
+                keyTextColorNormal = Color.parseColor("#E4E8F0"),
+                keyTextColorModifier = Color.parseColor("#7D8CAA"),
+                keyTextColorAccent = Color.parseColor("#040810"),
                 isGlass = true,
                 hasShadow = false,
-                suggestionBarBg = Color.argb(140, 18, 19, 26),
-                suggestionTextNormal = Color.argb(200, 255, 255, 255),
+                cornerRadiusDp = 10f,
+                borderWidthDp = 0.75f,
+                borderColor = Color.argb(40, 80, 140, 255),
+                suggestionBarBg = Color.parseColor("#0A0F1E"),
+                suggestionTextNormal = Color.parseColor("#8899B8"),
                 suggestionTextAccent = Color.parseColor("#00E5FF"),
                 toolbarToggleColor = Color.parseColor("#00E5FF"),
-                dividerColor = Color.argb(40, 255, 255, 255),
-                clipboardCardBg = Color.argb(40, 255, 255, 255),
-                clipboardCardPressed = Color.argb(80, 255, 255, 255),
-                clipboardEmptyText = Color.argb(140, 255, 255, 255),
+                dividerColor = Color.parseColor("#1A2040"),
+                clipboardCardBg = Color.argb(140, 20, 30, 55),
+                clipboardCardPressed = Color.argb(200, 35, 50, 85),
+                clipboardEmptyText = Color.parseColor("#556688"),
                 deleteColor = Color.parseColor("#FF5252"),
                 accentColor = Color.parseColor("#00E5FF")
             )
-            else -> ThemeColors(
-                bgColor = Color.parseColor("#12131A"),
-                keyBgNormal = Color.parseColor("#252736"),
-                keyBgNormalPressed = Color.parseColor("#373A50"),
-                keyBgModifier = Color.parseColor("#1B1C26"),
-                keyBgModifierPressed = Color.parseColor("#2D2F40"),
-                keyBgAccent = Color.parseColor("#00E5FF"),
-                keyBgAccentPressed = Color.parseColor("#00B0FF"),
+            "theme_pure_minimal" -> ThemeColors(
+                bgColor = Color.parseColor("#F7F7F5"),
+                keyBgNormal = Color.parseColor("#FFFFFF"),
+                keyBgNormalPressed = Color.parseColor("#ECECEA"),
+                keyBgModifier = Color.parseColor("#EEEEED"),
+                keyBgModifierPressed = Color.parseColor("#E0E0DE"),
+                keyBgAccent = Color.parseColor("#303030"),
+                keyBgAccentPressed = Color.parseColor("#1A1A1A"),
+                keyTextColorNormal = Color.parseColor("#2A2A2A"),
+                keyTextColorModifier = Color.parseColor("#8A8A8A"),
+                keyTextColorAccent = Color.parseColor("#FFFFFF"),
+                isGlass = false,
+                hasShadow = false,
+                cornerRadiusDp = 6f,
+                borderWidthDp = 0.5f,
+                borderColor = Color.parseColor("#E0E0DE"),
+                suggestionBarBg = Color.parseColor("#F7F7F5"),
+                suggestionTextNormal = Color.parseColor("#888888"),
+                suggestionTextAccent = Color.parseColor("#2A2A2A"),
+                toolbarToggleColor = Color.parseColor("#2A2A2A"),
+                dividerColor = Color.parseColor("#E8E8E6"),
+                clipboardCardBg = Color.parseColor("#FFFFFF"),
+                clipboardCardPressed = Color.parseColor("#F0F0EE"),
+                clipboardEmptyText = Color.parseColor("#AAAAAA"),
+                deleteColor = Color.parseColor("#E53935"),
+                accentColor = Color.parseColor("#2A2A2A")
+            )
+            "theme_liquid_glass" -> ThemeColors(
+                bgColor = Color.parseColor("#0B0F1C"),
+                keyBgNormal = Color.argb(45, 255, 255, 255),
+                keyBgNormalPressed = Color.argb(95, 255, 255, 255),
+                keyBgModifier = Color.argb(25, 255, 255, 255),
+                keyBgModifierPressed = Color.argb(65, 255, 255, 255),
+                keyBgAccent = Color.parseColor("#00D2FF"),
+                keyBgAccentPressed = Color.parseColor("#00A3FF"),
                 keyTextColorNormal = Color.WHITE,
-                keyTextColorModifier = Color.parseColor("#E0E0E0"),
-                keyTextColorAccent = Color.BLACK,
+                keyTextColorModifier = Color.parseColor("#BACBE2"),
+                keyTextColorAccent = Color.parseColor("#040C18"),
+                isGlass = true,
+                hasShadow = false,
+                cornerRadiusDp = 14f,
+                borderWidthDp = 1f,
+                borderColor = Color.argb(85, 255, 255, 255),
+                suggestionBarBg = Color.parseColor("#080D1A"),
+                suggestionTextNormal = Color.parseColor("#8E9EB8"),
+                suggestionTextAccent = Color.parseColor("#00D2FF"),
+                toolbarToggleColor = Color.parseColor("#00D2FF"),
+                dividerColor = Color.argb(40, 0, 210, 255),
+                clipboardCardBg = Color.argb(45, 255, 255, 255),
+                clipboardCardPressed = Color.argb(95, 255, 255, 255),
+                clipboardEmptyText = Color.parseColor("#7A8CA8"),
+                deleteColor = Color.parseColor("#FF453A"),
+                accentColor = Color.parseColor("#00D2FF")
+            )
+            "theme_material_you" -> ThemeColors(
+                bgColor = Color.parseColor("#FEF7FF"),
+                keyBgNormal = Color.parseColor("#FFFFFF"),
+                keyBgNormalPressed = Color.parseColor("#E8DEF8"),
+                keyBgModifier = Color.parseColor("#E8DEF8"),
+                keyBgModifierPressed = Color.parseColor("#D0BCFF"),
+                keyBgAccent = Color.parseColor("#6750A4"),
+                keyBgAccentPressed = Color.parseColor("#4F378B"),
+                keyTextColorNormal = Color.parseColor("#1D1B20"),
+                keyTextColorModifier = Color.parseColor("#49454F"),
+                keyTextColorAccent = Color.parseColor("#FFFFFF"),
                 isGlass = false,
                 hasShadow = true,
-                suggestionBarBg = Color.parseColor("#1A1C24"),
-                suggestionTextNormal = Color.parseColor("#A0A5B5"),
+                cornerRadiusDp = 16f,
+                borderWidthDp = 0f,
+                borderColor = Color.TRANSPARENT,
+                suggestionBarBg = Color.parseColor("#FEF7FF"),
+                suggestionTextNormal = Color.parseColor("#49454F"),
+                suggestionTextAccent = Color.parseColor("#6750A4"),
+                toolbarToggleColor = Color.parseColor("#6750A4"),
+                dividerColor = Color.parseColor("#E7E0EC"),
+                clipboardCardBg = Color.parseColor("#F3EDF7"),
+                clipboardCardPressed = Color.parseColor("#E8DEF8"),
+                clipboardEmptyText = Color.parseColor("#79747E"),
+                deleteColor = Color.parseColor("#B3261E"),
+                accentColor = Color.parseColor("#6750A4")
+            )
+            "theme_naga_heritage" -> {
+                val isNight = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+                if (isNight) {
+                    ThemeColors(
+                        bgColor = Color.parseColor("#121214"),
+                        keyBgNormal = Color.parseColor("#1E1E22"),
+                        keyBgNormalPressed = Color.parseColor("#323238"),
+                        keyBgModifier = Color.parseColor("#161619"),
+                        keyBgModifierPressed = Color.parseColor("#26262B"),
+                        keyBgAccent = Color.parseColor("#D32F2F"),
+                        keyBgAccentPressed = Color.parseColor("#B71C1C"),
+                        keyTextColorNormal = Color.parseColor("#F5EFE6"),
+                        keyTextColorModifier = Color.parseColor("#A8A096"),
+                        keyTextColorAccent = Color.WHITE,
+                        isGlass = false,
+                        hasShadow = true,
+                        cornerRadiusDp = 8f,
+                        borderWidthDp = 0.75f,
+                        borderColor = Color.parseColor("#2E181A"),
+                        suggestionBarBg = Color.parseColor("#121214"),
+                        suggestionTextNormal = Color.parseColor("#A8A096"),
+                        suggestionTextAccent = Color.parseColor("#E53935"),
+                        toolbarToggleColor = Color.parseColor("#E53935"),
+                        dividerColor = Color.parseColor("#241A1C"),
+                        clipboardCardBg = Color.parseColor("#1E1E22"),
+                        clipboardCardPressed = Color.parseColor("#2C2C32"),
+                        clipboardEmptyText = Color.parseColor("#7A7268"),
+                        deleteColor = Color.parseColor("#E53935"),
+                        accentColor = Color.parseColor("#E53935")
+                    )
+                } else {
+                    ThemeColors(
+                        bgColor = Color.parseColor("#F9F6F0"),
+                        keyBgNormal = Color.parseColor("#FFFFFF"),
+                        keyBgNormalPressed = Color.parseColor("#ECE6DC"),
+                        keyBgModifier = Color.parseColor("#EFEAE0"),
+                        keyBgModifierPressed = Color.parseColor("#E0D8CC"),
+                        keyBgAccent = Color.parseColor("#D32F2F"),
+                        keyBgAccentPressed = Color.parseColor("#B71C1C"),
+                        keyTextColorNormal = Color.parseColor("#1A1A1E"),
+                        keyTextColorModifier = Color.parseColor("#5A544A"),
+                        keyTextColorAccent = Color.WHITE,
+                        isGlass = false,
+                        hasShadow = true,
+                        cornerRadiusDp = 8f,
+                        borderWidthDp = 0.5f,
+                        borderColor = Color.parseColor("#E0D6C8"),
+                        suggestionBarBg = Color.parseColor("#F9F6F0"),
+                        suggestionTextNormal = Color.parseColor("#5A544A"),
+                        suggestionTextAccent = Color.parseColor("#D32F2F"),
+                        toolbarToggleColor = Color.parseColor("#D32F2F"),
+                        dividerColor = Color.parseColor("#E5DED2"),
+                        clipboardCardBg = Color.parseColor("#FFFFFF"),
+                        clipboardCardPressed = Color.parseColor("#F0EAE0"),
+                        clipboardEmptyText = Color.parseColor("#8A8072"),
+                        deleteColor = Color.parseColor("#D32F2F"),
+                        accentColor = Color.parseColor("#D32F2F")
+                    )
+                }
+            }
+            "theme_custom" -> {
+                val keyOpacity = prefs.getInt("custom_key_opacity", 50).coerceIn(0, 255)
+                val overlayOpacity = prefs.getInt("custom_overlay_opacity", 140).coerceIn(0, 255)
+                val cornerRadius = prefs.getFloat("custom_corner_radius", 10f).coerceIn(0f, 22f)
+                val borderWidth = prefs.getFloat("custom_border_width", 0.75f).coerceIn(0f, 3f)
+                val borderOpacity = prefs.getInt("custom_border_opacity", 60).coerceIn(0, 255)
+                val hasShadow = prefs.getBoolean("custom_key_has_shadow", false)
+                val keyStyle = prefs.getString("custom_key_style", "glass") ?: "glass"
+                val textMode = prefs.getString("custom_text_color_mode", "white") ?: "white"
+                val accentColorValue = prefs.getInt("custom_accent_color", Color.parseColor("#00E5FF"))
+
+                val keyBgNormalColor = when (keyStyle) {
+                    "dark" -> Color.argb(keyOpacity.coerceAtLeast(160), 22, 24, 32)
+                    "light" -> Color.argb(keyOpacity.coerceAtLeast(180), 245, 245, 248)
+                    else -> Color.argb(keyOpacity, 255, 255, 255) // glass
+                }
+                val keyBgPressedColor = when (keyStyle) {
+                    "dark" -> Color.argb((keyOpacity + 50).coerceAtMost(255), 45, 50, 65)
+                    "light" -> Color.argb(255, 220, 220, 225)
+                    else -> Color.argb((keyOpacity + 60).coerceAtMost(255), 255, 255, 255)
+                }
+                val keyBgModifierColor = when (keyStyle) {
+                    "dark" -> Color.argb(keyOpacity.coerceAtLeast(160), 16, 18, 24)
+                    "light" -> Color.argb(keyOpacity.coerceAtLeast(180), 232, 232, 236)
+                    else -> Color.argb((keyOpacity - 20).coerceAtLeast(10), 255, 255, 255)
+                }
+                val keyBgModifierPressedColor = when (keyStyle) {
+                    "dark" -> Color.argb((keyOpacity + 40).coerceAtMost(255), 35, 40, 52)
+                    "light" -> Color.argb(255, 210, 210, 216)
+                    else -> Color.argb((keyOpacity + 40).coerceAtMost(255), 255, 255, 255)
+                }
+
+                val textColor = when (textMode) {
+                    "black" -> Color.parseColor("#141416")
+                    "ivory" -> Color.parseColor("#F5EFE6")
+                    "accent" -> accentColorValue
+                    else -> Color.WHITE
+                }
+                val modTextColor = when (textMode) {
+                    "black" -> Color.parseColor("#666666")
+                    "ivory" -> Color.parseColor("#A8A096")
+                    "accent" -> Color.argb(200, Color.red(accentColorValue), Color.green(accentColorValue), Color.blue(accentColorValue))
+                    else -> Color.argb(220, 255, 255, 255)
+                }
+
+                ThemeColors(
+                    bgColor = Color.TRANSPARENT,
+                    keyBgNormal = keyBgNormalColor,
+                    keyBgNormalPressed = keyBgPressedColor,
+                    keyBgModifier = keyBgModifierColor,
+                    keyBgModifierPressed = keyBgModifierPressedColor,
+                    keyBgAccent = accentColorValue,
+                    keyBgAccentPressed = Color.argb(230, Color.red(accentColorValue), Color.green(accentColorValue), Color.blue(accentColorValue)),
+                    keyTextColorNormal = textColor,
+                    keyTextColorModifier = modTextColor,
+                    keyTextColorAccent = if (keyStyle == "light" || textMode == "black") Color.WHITE else Color.BLACK,
+                    isGlass = (keyStyle == "glass"),
+                    hasShadow = hasShadow,
+                    cornerRadiusDp = cornerRadius,
+                    borderWidthDp = borderWidth,
+                    borderColor = Color.argb(borderOpacity, 255, 255, 255),
+                    suggestionBarBg = Color.argb(overlayOpacity, 10, 10, 18),
+                    suggestionTextNormal = modTextColor,
+                    suggestionTextAccent = accentColorValue,
+                    toolbarToggleColor = accentColorValue,
+                    dividerColor = Color.argb(40, 255, 255, 255),
+                    clipboardCardBg = Color.argb(keyOpacity.coerceAtLeast(40), 255, 255, 255),
+                    clipboardCardPressed = Color.argb((keyOpacity + 50).coerceAtMost(255), 255, 255, 255),
+                    clipboardEmptyText = Color.argb(140, 255, 255, 255),
+                    deleteColor = Color.parseColor("#FF5252"),
+                    accentColor = accentColorValue
+                )
+            }
+            else -> ThemeColors(
+                bgColor = Color.parseColor("#080C18"),
+                keyBgNormal = Color.argb(140, 25, 35, 60),
+                keyBgNormalPressed = Color.argb(200, 40, 55, 90),
+                keyBgModifier = Color.argb(100, 18, 25, 45),
+                keyBgModifierPressed = Color.argb(170, 35, 48, 80),
+                keyBgAccent = Color.parseColor("#00E5FF"),
+                keyBgAccentPressed = Color.parseColor("#00B8D4"),
+                keyTextColorNormal = Color.parseColor("#E4E8F0"),
+                keyTextColorModifier = Color.parseColor("#7D8CAA"),
+                keyTextColorAccent = Color.parseColor("#040810"),
+                isGlass = true,
+                hasShadow = false,
+                cornerRadiusDp = 10f,
+                borderWidthDp = 0.75f,
+                borderColor = Color.argb(40, 80, 140, 255),
+                suggestionBarBg = Color.parseColor("#0A0F1E"),
+                suggestionTextNormal = Color.parseColor("#8899B8"),
                 suggestionTextAccent = Color.parseColor("#00E5FF"),
                 toolbarToggleColor = Color.parseColor("#00E5FF"),
-                dividerColor = Color.parseColor("#2E313D"),
-                clipboardCardBg = Color.parseColor("#212330"),
-                clipboardCardPressed = Color.parseColor("#323547"),
-                clipboardEmptyText = Color.parseColor("#808495"),
+                dividerColor = Color.parseColor("#1A2040"),
+                clipboardCardBg = Color.argb(140, 20, 30, 55),
+                clipboardCardPressed = Color.argb(200, 35, 50, 85),
+                clipboardEmptyText = Color.parseColor("#556688"),
                 deleteColor = Color.parseColor("#FF5252"),
                 accentColor = Color.parseColor("#00E5FF")
             )
@@ -364,16 +470,17 @@ class CustomKeyboardView @JvmOverloads constructor(
      * Applies the current visual theme background to the keyboard view
      */
     fun applyTheme(forceRebuild: Boolean = false) {
-        val selectedTheme = prefs.getString("selected_theme", "theme_midnight") ?: "theme_midnight"
+        val selectedTheme = prefs.getString("selected_theme", "theme_midnight_glass") ?: "theme_midnight_glass"
         
         // If theme hasn't changed and we aren't forcing a rebuild, skip heavy operations
         if (!forceRebuild && selectedTheme == lastAppliedTheme && cachedThemeColors != null) {
             return
         }
         
-        // Clear drawable cache on theme change
-        if (selectedTheme != lastAppliedTheme) {
+        // Clear drawable and wallpaper cache on theme change or forced rebuild
+        if (forceRebuild || selectedTheme != lastAppliedTheme) {
             drawableCache.clear()
+            if (forceRebuild) cachedWallpaper = null
         }
 
         currentTheme = selectedTheme
@@ -382,44 +489,35 @@ class CustomKeyboardView @JvmOverloads constructor(
         val colors = cachedThemeColors!!
 
         val density = resources.displayMetrics.density
-        val padding = (6 * density).toInt()
-        setPadding(padding, padding, padding, padding)
+        setPadding((3 * density).toInt(), (2 * density).toInt(), (3 * density).toInt(), (3 * density).toInt())
 
         when {
-            currentTheme == "theme_custom_wallpaper" -> {
-                if (cachedWallpaper != null) {
-                    background = cachedWallpaper
-                } else {
-                    val wallpaperFile = File(context.filesDir, "custom_wallpaper.jpg")
-                    if (wallpaperFile.exists()) {
-                        try {
-                            val options = BitmapFactory.Options().apply {
-                                inSampleSize = 2 // Avoid OOM
-                            }
-                            val bitmap = BitmapFactory.decodeFile(wallpaperFile.absolutePath, options)
-                            if (bitmap != null) {
-                                cachedWallpaper = BitmapDrawable(resources, bitmap)
-                                background = cachedWallpaper
-                            } else {
-                                // Fallback gradient
-                                background = GradientDrawable(
-                                    GradientDrawable.Orientation.TL_BR,
-                                    intArrayOf(Color.parseColor("#1F1C2C"), Color.parseColor("#928DAB"))
-                                )
-                            }
-                        } catch (e: Exception) {
+            currentTheme == "theme_custom" -> {
+                val overlayDim = prefs.getInt("custom_overlay_opacity", 140)
+                val dimColor = Color.argb(overlayDim.coerceIn(0, 220), 10, 10, 18)
+                val wallpaperFile = File(context.filesDir, "custom_wallpaper.jpg")
+                if (wallpaperFile.exists()) {
+                    try {
+                        val bitmap = BitmapFactory.decodeFile(wallpaperFile.absolutePath)
+                        if (bitmap != null) {
+                            background = CenterCropWallpaperDrawable(bitmap, dimColor)
+                        } else {
                             background = GradientDrawable(
                                 GradientDrawable.Orientation.TL_BR,
-                                intArrayOf(Color.parseColor("#1F1C2C"), Color.parseColor("#928DAB"))
+                                intArrayOf(Color.parseColor("#12121A"), Color.parseColor("#1F1C2C"))
                             )
                         }
-                    } else {
-                        // Default beautiful sunset fallback for custom wallpaper
+                    } catch (e: Exception) {
                         background = GradientDrawable(
                             GradientDrawable.Orientation.TL_BR,
-                            intArrayOf(Color.parseColor("#1F1C2C"), Color.parseColor("#928DAB"))
+                            intArrayOf(Color.parseColor("#12121A"), Color.parseColor("#1F1C2C"))
                         )
                     }
+                } else {
+                    background = GradientDrawable(
+                        GradientDrawable.Orientation.TL_BR,
+                        intArrayOf(Color.parseColor("#12121A"), Color.parseColor("#1F1C2C"))
+                    )
                 }
             }
             colors.bgGradient != null -> {
@@ -448,8 +546,10 @@ class CustomKeyboardView @JvmOverloads constructor(
         val colors = cachedThemeColors ?: getThemeColors().also { cachedThemeColors = it }
 
         val density = resources.displayMetrics.density
-        // Increased height slightly (54dp) for ultra-premium layout spacing
-        val rowHeightPx = (54 * density).toInt()
+        val showNumberRow = prefs.getBoolean("show_number_row", false)
+        val rowHeightPx = if (showNumberRow && keyboardMode == Mode.QWERTY) (44 * density).toInt() else (48 * density).toInt()
+
+        val isAtoLRowIndex = if (showNumberRow) 2 else 1
 
         for ((index, rowKeys) in rows.withIndex()) {
             val rowLayout = LinearLayout(context).apply {
@@ -461,8 +561,8 @@ class CustomKeyboardView @JvmOverloads constructor(
                 gravity = Gravity.CENTER
             }
 
-            val isRow2QWERTY = (keyboardMode == Mode.QWERTY && index == 1)
-            if (isRow2QWERTY) {
+            val isRowAtoL = (keyboardMode == Mode.QWERTY && index == isAtoLRowIndex)
+            if (isRowAtoL) {
                 rowLayout.addView(createSpacer(0.5f))
             }
 
@@ -470,7 +570,7 @@ class CustomKeyboardView @JvmOverloads constructor(
                 rowLayout.addView(createKeyView(key, colors))
             }
 
-            if (isRow2QWERTY) {
+            if (isRowAtoL) {
                 rowLayout.addView(createSpacer(0.5f))
             }
 
@@ -488,70 +588,83 @@ class CustomKeyboardView @JvmOverloads constructor(
     }
 
     private fun getQwertyRows(): List<List<KeyInfo>> {
+        val showNumberRow = prefs.getBoolean("show_number_row", false)
+        val r0 = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
         val r1 = listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p")
         val r2 = listOf("a", "s", "d", "f", "g", "h", "j", "k", "l")
         val r3 = listOf("z", "x", "c", "v", "b", "n", "m")
 
-        return listOf(
-            r1.map { KeyInfo(formatText(it), it[0].code) },
-            r2.map { KeyInfo(formatText(it), it[0].code) },
-            listOf(
-                KeyInfo(if (isShifted) "⬆" else "⇧", -1, weight = 1.35f, isModifier = true),
-                *r3.map { KeyInfo(formatText(it), it[0].code) }.toTypedArray(),
-                KeyInfo("⌫", -5, weight = 1.35f, isModifier = true)
-            ),
-            listOf(
-                KeyInfo("?123", -2, weight = 1.3f, isModifier = true),
-                KeyInfo("😊", -10, weight = 1.0f, isModifier = true),
-                KeyInfo("likhibi", 32, weight = 4.4f), // Spacebar branding
-                KeyInfo(".", 46, weight = 1.0f),
-                KeyInfo(enterKeyLabel, 10, weight = 1.3f, isAccent = true)
-            )
-        )
+        val result = mutableListOf<List<KeyInfo>>()
+        // Row 1 (Optional Number Row): 10 keys x 1.0f = 10.0f
+        if (showNumberRow) {
+            result.add(r0.map { KeyInfo(it, it[0].code, weight = 1.0f) })
+        }
+        // Row 2 (q..p): 10 keys x 1.0f = 10.0f
+        result.add(r1.map { KeyInfo(formatText(it), it[0].code, weight = 1.0f) })
+        // Row 3 (a..l): 0.5f spacer + 9 keys x 1.0f + 0.5f spacer = 10.0f
+        result.add(r2.map { KeyInfo(formatText(it), it[0].code, weight = 1.0f) })
+        // Row 4 (z..m): Shift (1.5f) + 7 keys x 1.0f + Backspace (1.5f) = 10.0f
+        result.add(listOf(
+            KeyInfo(if (isShifted) "⬆" else "⇧", -1, weight = 1.5f, isModifier = true),
+            *r3.map { KeyInfo(formatText(it), it[0].code, weight = 1.0f) }.toTypedArray(),
+            KeyInfo("⌫", -5, weight = 1.5f, isModifier = true)
+        ))
+        // Row 5 (Bottom Bar): ?123 (1.4f) + , (1.0f) + 😊 (1.0f) + Space (4.2f) + . (1.0f) + Enter (1.4f) = 10.0f
+        result.add(listOf(
+            KeyInfo("?123", -2, weight = 1.4f, isModifier = true),
+            KeyInfo(",", 44, weight = 1.0f),
+            KeyInfo("😊", -10, weight = 1.0f, isModifier = true),
+            KeyInfo("likhibi", 32, weight = 4.2f),
+            KeyInfo(".", 46, weight = 1.0f),
+            KeyInfo(enterKeyLabel, 10, weight = 1.4f, isAccent = true)
+        ))
+        return result
     }
 
     private fun getSymbolsRows(): List<List<KeyInfo>> {
         val r1 = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-        val r2 = listOf("-", "/", ":", ";", "(", ")", "$", "&", "@", "\"")
-        val r3 = listOf(".", ",", "?", "!", "'")
+        val r2 = listOf("@", "#", "$", "%", "&", "-", "+", "(", ")", "/")
+        val r3 = listOf("*", "\"", "'", ":", ";", "!", "?")
 
         return listOf(
-            r1.map { KeyInfo(it, it[0].code) },
-            r2.map { KeyInfo(it, it[0].code) },
+            r1.map { KeyInfo(it, it[0].code, weight = 1.0f) },
+            r2.map { KeyInfo(it, it[0].code, weight = 1.0f) },
             listOf(
-                KeyInfo("=\\<", -3, weight = 1.35f, isModifier = true),
-                *r3.map { KeyInfo(it, it[0].code) }.toTypedArray(),
-                KeyInfo("⌫", -5, weight = 1.35f, isModifier = true)
+                KeyInfo("=\\<", -3, weight = 1.5f, isModifier = true),
+                *r3.map { KeyInfo(it, it[0].code, weight = 1.0f) }.toTypedArray(),
+                KeyInfo("⌫", -5, weight = 1.5f, isModifier = true)
             ),
             listOf(
-                KeyInfo("ABC", -2, weight = 1.3f, isModifier = true),
+                KeyInfo("ABC", -2, weight = 1.4f, isModifier = true),
+                KeyInfo(",", 44, weight = 1.0f),
                 KeyInfo("😊", -10, weight = 1.0f, isModifier = true),
-                KeyInfo("space", 32, weight = 4.4f),
+                KeyInfo("space", 32, weight = 4.2f),
                 KeyInfo(".", 46, weight = 1.0f),
-                KeyInfo(enterKeyLabel, 10, weight = 1.3f, isAccent = true)
+                KeyInfo(enterKeyLabel, 10, weight = 1.4f, isAccent = true)
             )
         )
     }
 
     private fun getExtraSymbolsRows(): List<List<KeyInfo>> {
-        val r1 = listOf("[", "]", "{", "}", "#", "%", "^", "*", "+", "=")
-        val r2 = listOf("_", "\\", "|", "~", "<", ">", "€", "£", "¥", "•")
-        val r3 = listOf(".", ",", "?", "!", "'")
+        val r1 = listOf("~", "`", "|", "•", "√", "π", "÷", "×", "¶", "∆")
+        val r2 = listOf("£", "¥", "€", "¢", "^", "°", "=", "{", "}", "\\")
+        val r3 = listOf("%", "_", "<", ">", "[", "]", "§")
 
         return listOf(
-            r1.map { KeyInfo(it, it[0].code) },
-            r2.map { KeyInfo(it, it[0].code) },
+            r1.map { KeyInfo(it, it[0].code, weight = 1.0f) },
+            r2.map { KeyInfo(it, it[0].code, weight = 1.0f) },
             listOf(
-                KeyInfo("?123", -4, weight = 1.35f, isModifier = true),
-                *r3.map { KeyInfo(it, it[0].code) }.toTypedArray(),
-                KeyInfo("⌫", -5, weight = 1.35f, isModifier = true)
+                KeyInfo("?123", -4, weight = 1.5f, isModifier = true),
+                *r3.map { KeyInfo(it, it[0].code, weight = 1.0f) }.toTypedArray(),
+                KeyInfo("⌫", -5, weight = 1.5f, isModifier = true)
             ),
             listOf(
-                KeyInfo("ABC", -2, weight = 1.3f, isModifier = true),
+                KeyInfo("ABC", -2, weight = 1.4f, isModifier = true),
+                KeyInfo(",", 44, weight = 1.0f),
                 KeyInfo("😊", -10, weight = 1.0f, isModifier = true),
-                KeyInfo("space", 32, weight = 4.4f),
+                KeyInfo("space", 32, weight = 4.2f),
                 KeyInfo(".", 46, weight = 1.0f),
-                KeyInfo(enterKeyLabel, 10, weight = 1.3f, isAccent = true)
+                KeyInfo(enterKeyLabel, 10, weight = 1.4f, isAccent = true)
             )
         )
     }
@@ -599,7 +712,7 @@ class CustomKeyboardView @JvmOverloads constructor(
                 if (key.code == 32) {
                     textSize = 14f
                     // space text color matching active styling
-                    setTextColor(if (colors.isGlass) Color.argb(180, 255, 255, 255) else Color.parseColor("#7A8090"))
+                    setTextColor(if (colors.isGlass) Color.argb(180, 255, 255, 255) else colors.suggestionTextNormal)
                 }
             }
 
@@ -607,10 +720,8 @@ class CustomKeyboardView @JvmOverloads constructor(
             val bgNormalColor = when {
                 key.isAccent -> colors.keyBgAccent
                 key.isModifier -> {
-                    if (key.code == -1 && (isShifted || isCapsLock)) {
-                        // Cyan highlight for Shift on OnePlus/Midnight, light glass on gradients
-                        if (currentTheme == "theme_oneplus" || currentTheme == "theme_midnight") Color.parseColor("#00E5FF") else colors.keyBgAccent
-                    } else colors.keyBgModifier
+                    if (key.code == -1 && (isShifted || isCapsLock)) colors.accentColor
+                    else colors.keyBgModifier
                 }
                 else -> colors.keyBgNormal
             }
@@ -618,18 +729,17 @@ class CustomKeyboardView @JvmOverloads constructor(
             val bgPressedColor = when {
                 key.isAccent -> colors.keyBgAccentPressed
                 key.isModifier -> {
-                    if (key.code == -1 && (isShifted || isCapsLock)) {
-                        if (currentTheme == "theme_oneplus" || currentTheme == "theme_midnight") Color.parseColor("#00B0FF") else colors.keyBgAccentPressed
-                    } else colors.keyBgModifierPressed
+                    if (key.code == -1 && (isShifted || isCapsLock)) colors.keyBgAccentPressed
+                    else colors.keyBgModifierPressed
                 }
                 else -> colors.keyBgNormalPressed
             }
 
-            // Calculate matching shadow color for 3D keycaps
+            // Dynamic shadow color — darkens key bg for natural 3D depth on any theme
             val shadowColor = when {
-                key.isAccent -> Color.parseColor("#008FA3")
-                key.isModifier -> Color.parseColor("#0F1015")
-                else -> Color.parseColor("#181922")
+                key.isAccent -> darkenColor(colors.keyBgAccent, 0.35f)
+                key.isModifier -> darkenColor(colors.keyBgModifier, 0.4f)
+                else -> darkenColor(colors.keyBgNormal, 0.35f)
             }
 
             // Apply premium 3D or Glassmorphic drawable
@@ -638,32 +748,37 @@ class CustomKeyboardView @JvmOverloads constructor(
                 pressedColor = bgPressedColor,
                 shadowColor = shadowColor,
                 hasShadow = colors.hasShadow,
-                radius = 8f * density
+                radius = colors.cornerRadiusDp * density,
+                borderWidthDp = colors.borderWidthDp,
+                borderColor = colors.borderColor
             )
 
-            // Spacing layout setup with OnePlus & iOS margins
+            // Exact Gboard key margins and spacing
             val params = LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, key.weight)
             params.setMargins(
-                (3.5f * density).toInt(),
-                (4.5f * density).toInt(),
-                (3.5f * density).toInt(),
-                (4.5f * density).toInt()
+                (2.5f * density).toInt(),
+                (2.5f * density).toInt(),
+                (2.5f * density).toInt(),
+                (2.5f * density).toInt()
             )
             layoutParams = params
 
-            // Snappy physics-based key press spring scaling & haptics
+            // Blazing-fast touch listener with instant ACTION_DOWN registration & zero UI jank
             var startX = 0f
             var isDraggingSpace = false
+            var spaceLongPressTriggered = false
+            var spaceLongPressRunnable: Runnable? = null
+            val spaceHandler = Handler(Looper.getMainLooper())
 
             setOnTouchListener { v, event ->
-                when (event.action) {
+                when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
                         startX = event.rawX
                         isDraggingSpace = false
-                        v.animate().cancel()
-                        // Visually translates down slightly to simulate physical click
-                        v.animate().scaleX(0.92f).scaleY(0.92f).translationY(1.5f * density).setDuration(25).start()
+                        spaceLongPressTriggered = false
+                        v.isPressed = true
 
+                        // Haptic feedback (instant)
                         val haptic = when {
                             key.isAccent -> HapticType.KEY_ACCENT
                             key.code == 32 -> HapticType.KEY_SPACE
@@ -672,12 +787,25 @@ class CustomKeyboardView @JvmOverloads constructor(
                         }
                         performPremiumHaptic(haptic)
 
-                        // Key popup letter bubble (iOS / Gboard style)
-                        val shouldShowPopup = !key.isModifier && key.code != 32 && key.code != 10 && keyboardMode != Mode.EMOJI
-                        if (shouldShowPopup) {
-                            showKeyPreview(v, key.label)
+                        // Instant key dispatch on ACTION_DOWN for zero-latency fluid typing
+                        if (key.code != 32) { // Space is handled on down or drag
+                            if (keyboardMode == Mode.EMOJI && !key.isModifier) {
+                                listener?.onText(key.label)
+                            } else {
+                                listener?.onKey(key.code)
+                            }
+                        } else {
+                            // Spacebar: commit space on down
+                            listener?.onKey(32)
+                            spaceLongPressRunnable = Runnable {
+                                spaceLongPressTriggered = true
+                                performPremiumHaptic(HapticType.KEY_ACCENT)
+                                listener?.onKey(-11) // Switch input method / keyboard
+                            }
+                            spaceHandler.postDelayed(spaceLongPressRunnable!!, 450L)
                         }
 
+                        // Continuous backspace repeat
                         if (key.code == -5) {
                             deleteRunnable = object : Runnable {
                                 override fun run() {
@@ -686,51 +814,36 @@ class CustomKeyboardView @JvmOverloads constructor(
                                     deleteHandler.postDelayed(this, 50L)
                                 }
                             }
-                            deleteHandler.postDelayed(deleteRunnable!!, 350L)
+                            deleteHandler.postDelayed(deleteRunnable!!, 320L)
                         }
                     }
                     MotionEvent.ACTION_MOVE -> {
                         if (key.code == 32) {
                             val diffX = event.rawX - startX
-                            if (Math.abs(diffX) > 25 * density) {
+                            if (Math.abs(diffX) > 18 * density) {
                                 isDraggingSpace = true
+                                spaceLongPressRunnable?.let { spaceHandler.removeCallbacks(it) }
                                 if (diffX > 0) {
-                                    listener?.onKey(Int.MAX_VALUE) // special code for right
+                                    listener?.onKey(Int.MAX_VALUE) // D-pad right
                                 } else {
-                                    listener?.onKey(Int.MIN_VALUE) // special code for left
+                                    listener?.onKey(Int.MIN_VALUE) // D-pad left
                                 }
                                 startX = event.rawX
                             }
                         }
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        v.animate().cancel()
-                        // Spring back bounce
-                        v.animate().scaleX(1.0f).scaleY(1.0f).translationY(0f)
-                            .setDuration(220)
-                            .setInterpolator(OvershootInterpolator(2.4f))
-                            .start()
+                        v.isPressed = false
+                        spaceLongPressRunnable?.let { spaceHandler.removeCallbacks(it) }
+                        spaceLongPressRunnable = null
 
-                        dismissKeyPreview()
-                        
                         if (key.code == -5) {
                             deleteRunnable?.let { deleteHandler.removeCallbacks(it) }
                             deleteRunnable = null
                         }
-                        if (event.action == MotionEvent.ACTION_UP && !isDraggingSpace) {
-                            v.performClick()
-                        }
                     }
                 }
                 true
-            }
-
-            setOnClickListener {
-                if (keyboardMode == Mode.EMOJI && !key.isModifier && key.code != 32) {
-                    listener?.onText(key.label)
-                } else {
-                    listener?.onKey(key.code)
-                }
             }
         }
 
@@ -751,25 +864,37 @@ class CustomKeyboardView @JvmOverloads constructor(
         pressedColor: Int,
         shadowColor: Int,
         hasShadow: Boolean,
-        radius: Float
+        radius: Float,
+        borderWidthDp: Float = 0f,
+        borderColor: Int = Color.TRANSPARENT
     ): RippleDrawable {
-        val key = "$normalColor-$pressedColor-$shadowColor-$hasShadow-$radius"
+        val key = "$normalColor-$pressedColor-$shadowColor-$hasShadow-$radius-$borderWidthDp-$borderColor"
         val state = drawableCache.getOrPut(key) {
-            createPremiumKeyDrawable(normalColor, pressedColor, shadowColor, hasShadow, radius).constantState!!
+            createPremiumKeyDrawable(normalColor, pressedColor, shadowColor, hasShadow, radius, borderWidthDp, borderColor).constantState!!
         }
         return state.newDrawable() as RippleDrawable
     }
 
     /**
-     * Programmatic drawable generator: creates a gorgeous 3D keycap or frosted glass card
+     * Utility: darken a color by a factor (0.0 = no change, 1.0 = fully black)
      */
+    private fun darkenColor(color: Int, factor: Float): Int {
+        val r = (Color.red(color) * (1f - factor)).toInt().coerceIn(0, 255)
+        val g = (Color.green(color) * (1f - factor)).toInt().coerceIn(0, 255)
+        val b = (Color.blue(color) * (1f - factor)).toInt().coerceIn(0, 255)
+        return Color.argb(Color.alpha(color).coerceAtLeast(80), r, g, b)
+    }
+
     private fun createPremiumKeyDrawable(
         normalColor: Int,
         pressedColor: Int,
         shadowColor: Int,
         hasShadow: Boolean,
-        radius: Float
+        radius: Float,
+        borderWidthDp: Float = 0f,
+        borderColor: Int = Color.TRANSPARENT
     ): RippleDrawable {
+        val density = resources.displayMetrics.density
         val contentDrawable = if (hasShadow) {
             val shadow = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -783,15 +908,18 @@ class CustomKeyboardView @JvmOverloads constructor(
             }
             val layers = arrayOf(shadow, keycap)
             LayerDrawable(layers).apply {
-                setLayerInset(1, 0, 0, 0, (2.5f * resources.displayMetrics.density).toInt())
+                setLayerInset(1, 0, 0, 0, (2.5f * density).toInt())
             }
         } else {
-            // Frosted glassmorphism background
+            // Frosted glassmorphism / minimal flat key background
             GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = radius
                 setColor(normalColor)
-                setStroke(1, Color.argb(45, 255, 255, 255))
+                val bwPx = if (borderWidthDp > 0f) (borderWidthDp * density).toInt().coerceAtLeast(1) else 0
+                if (bwPx > 0 && borderColor != Color.TRANSPARENT) {
+                    setStroke(bwPx, borderColor)
+                }
             }
         }
 
@@ -808,53 +936,11 @@ class CustomKeyboardView @JvmOverloads constructor(
         )
     }
 
-    /**
-     * Shows a gorgeous iOS/Gboard-style popup preview bubble floating above the touched key.
-     */
     private fun showKeyPreview(keyView: View, label: String) {
-        dismissKeyPreview()
-
-        val density = resources.displayMetrics.density
-        val colors = cachedThemeColors ?: getThemeColors()
-        val popupWidth = (56 * density).toInt()
-        val popupHeight = (64 * density).toInt()
-
-        val popupView = TextView(context).apply {
-            text = label
-            textSize = 28f
-            setTextColor(colors.keyTextColorNormal)
-            gravity = Gravity.CENTER
-            typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
-
-            val previewBg = colors.clipboardCardBg
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = 14f * density
-                setColor(previewBg)
-                setStroke((1.5f * density).toInt(), colors.accentColor)
-            }
-            elevation = 8f * density
-        }
-
-        activePopup = PopupWindow(popupView, popupWidth, popupHeight).apply {
-            isClippingEnabled = false
-        }
-
-        val location = IntArray(2)
-        keyView.getLocationInWindow(location)
-
-        val x = location[0] + (keyView.width - popupWidth) / 2
-        val y = location[1] - popupHeight - (10 * density).toInt()
-
-        try {
-            activePopup?.showAtLocation(keyView, Gravity.NO_GRAVITY, x, y)
-        } catch (e: Exception) {
-        }
+        // Native ripple & instant keycaps provide clean, 120fps fluid feedback without popup blocking
     }
 
     private fun dismissKeyPreview() {
-        activePopup?.dismiss()
-        activePopup = null
     }
 
     /**
@@ -914,7 +1000,7 @@ class CustomKeyboardView @JvmOverloads constructor(
         val header = LinearLayout(context).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding((12 * density).toInt(), (4 * density).toInt(), (12 * density).toInt(), (4 * density).toInt())
+            setPadding((14 * density).toInt(), (6 * density).toInt(), (14 * density).toInt(), (6 * density).toInt())
             layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (44 * density).toInt())
         }
 
@@ -927,36 +1013,39 @@ class CustomKeyboardView @JvmOverloads constructor(
         }
         header.addView(title)
 
-        val clearBtn = TextView(context).apply {
-            text = "Clear All"
-            setTextColor(colors.deleteColor)
-            textSize = 13f
-            typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
-            setPadding((8 * density).toInt(), (4 * density).toInt(), (8 * density).toInt(), (4 * density).toInt())
-            background = createPremiumKeyDrawable(
-                Color.argb(20, Color.red(colors.deleteColor), Color.green(colors.deleteColor), Color.blue(colors.deleteColor)),
-                Color.argb(50, Color.red(colors.deleteColor), Color.green(colors.deleteColor), Color.blue(colors.deleteColor)),
-                0, false, 6f * density
-            )
-            setOnClickListener {
-                prefs.edit().putString("clipboard_history", "").apply()
-                showClipboard()
+        val saved = prefs.getString("clipboard_history", "") ?: ""
+        val clips = if (saved.isEmpty()) emptyList() else saved.split("[LIKHIBI_SPLIT]").filter { it.isNotEmpty() }
+
+        if (clips.isNotEmpty()) {
+            val clearBtn = android.widget.ImageView(context).apply {
+                setImageResource(R.drawable.ic_trash_clean)
+                setColorFilter(colors.deleteColor)
+                layoutParams = LayoutParams((32 * density).toInt(), (32 * density).toInt()).apply {
+                    setMargins(0, 0, (8 * density).toInt(), 0)
+                }
+                setPadding((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
+                background = createPremiumKeyDrawable(
+                    Color.argb(20, Color.red(colors.deleteColor), Color.green(colors.deleteColor), Color.blue(colors.deleteColor)),
+                    Color.argb(50, Color.red(colors.deleteColor), Color.green(colors.deleteColor), Color.blue(colors.deleteColor)),
+                    0, false, 8f * density
+                )
+                setOnClickListener {
+                    prefs.edit().putString("clipboard_history", "").apply()
+                    showClipboard()
+                }
             }
+            header.addView(clearBtn)
         }
-        header.addView(clearBtn)
 
-        header.addView(View(context).apply { layoutParams = LayoutParams((12 * density).toInt(), 1) })
-
-        val closeBtn = TextView(context).apply {
-            text = "Close"
-            setTextColor(colors.accentColor)
-            textSize = 13f
-            typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
-            setPadding((8 * density).toInt(), (4 * density).toInt(), (8 * density).toInt(), (4 * density).toInt())
+        val closeBtn = android.widget.ImageView(context).apply {
+            setImageResource(R.drawable.ic_close_clean)
+            setColorFilter(colors.keyTextColorModifier)
+            layoutParams = LayoutParams((32 * density).toInt(), (32 * density).toInt())
+            setPadding((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
             background = createPremiumKeyDrawable(
-                Color.argb(20, Color.red(colors.accentColor), Color.green(colors.accentColor), Color.blue(colors.accentColor)),
-                Color.argb(50, Color.red(colors.accentColor), Color.green(colors.accentColor), Color.blue(colors.accentColor)),
-                0, false, 6f * density
+                Color.argb(20, 255, 255, 255),
+                Color.argb(50, 255, 255, 255),
+                0, false, 8f * density
             )
             setOnClickListener {
                 viewState = ViewState.KEYS
@@ -979,21 +1068,32 @@ class CustomKeyboardView @JvmOverloads constructor(
 
         val listLayout = LinearLayout(context).apply {
             orientation = VERTICAL
-            setPadding((8 * density).toInt(), 0, (8 * density).toInt(), (8 * density).toInt())
+            setPadding((10 * density).toInt(), 0, (10 * density).toInt(), (8 * density).toInt())
         }
 
-        val saved = prefs.getString("clipboard_history", "") ?: ""
-        val clips = if (saved.isEmpty()) emptyList() else saved.split("[LIKHIBI_SPLIT]").filter { it.isNotEmpty() }
-
         if (clips.isEmpty()) {
-            val emptyTxt = TextView(context).apply {
-                text = "Clipboard is empty. Copied text will appear here."
-                setTextColor(colors.clipboardEmptyText)
-                textSize = 14f
+            val emptyLayout = LinearLayout(context).apply {
+                orientation = VERTICAL
                 gravity = Gravity.CENTER
-                setPadding(0, (40 * density).toInt(), 0, 0)
+                setPadding(0, (36 * density).toInt(), 0, 0)
             }
-            listLayout.addView(emptyTxt)
+            val emptyIcon = android.widget.ImageView(context).apply {
+                setImageResource(R.drawable.ic_tool_clipboard)
+                setColorFilter(colors.clipboardEmptyText)
+                layoutParams = LayoutParams((32 * density).toInt(), (32 * density).toInt()).apply {
+                    setMargins(0, 0, 0, (8 * density).toInt())
+                }
+                alpha = 0.5f
+            }
+            emptyLayout.addView(emptyIcon)
+            val emptyTxt = TextView(context).apply {
+                text = "Clipboard is empty\nCopied text will appear here"
+                setTextColor(colors.clipboardEmptyText)
+                textSize = 13f
+                gravity = Gravity.CENTER
+            }
+            emptyLayout.addView(emptyTxt)
+            listLayout.addView(emptyLayout)
         } else {
             for (clip in clips.reversed()) {
                 val itemRow = LinearLayout(context).apply {
@@ -1001,14 +1101,16 @@ class CustomKeyboardView @JvmOverloads constructor(
                     gravity = Gravity.CENTER_VERTICAL
                     setPadding((12 * density).toInt(), (10 * density).toInt(), (10 * density).toInt(), (10 * density).toInt())
                     layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                        setMargins(0, (4 * density).toInt(), 0, (4 * density).toInt())
+                        setMargins(0, (3 * density).toInt(), 0, (3 * density).toInt())
                     }
                     background = createPremiumKeyDrawable(
                         colors.clipboardCardBg,
                         colors.clipboardCardPressed,
                         0,
                         false,
-                        10f * density
+                        10f * density,
+                        colors.borderWidthDp,
+                        colors.borderColor
                     )
                 }
 
@@ -1022,12 +1124,11 @@ class CustomKeyboardView @JvmOverloads constructor(
                 }
                 itemRow.addView(clipText)
 
-                val deleteIcon = TextView(context).apply {
-                    text = "×"
-                    setTextColor(colors.deleteColor)
-                    textSize = 16f
-                    gravity = Gravity.CENTER
-                    setPadding((8 * density).toInt(), (6 * density).toInt(), (8 * density).toInt(), (6 * density).toInt())
+                val deleteIcon = android.widget.ImageView(context).apply {
+                    setImageResource(R.drawable.ic_close_clean)
+                    setColorFilter(colors.clipboardEmptyText)
+                    layoutParams = LayoutParams((24 * density).toInt(), (24 * density).toInt())
+                    setPadding((4 * density).toInt(), (4 * density).toInt(), (4 * density).toInt(), (4 * density).toInt())
                     setOnClickListener {
                         val newList = clips.toMutableList().apply { remove(clip) }
                         prefs.edit().putString("clipboard_history", newList.joinToString("[LIKHIBI_SPLIT]")).apply()
@@ -1063,29 +1164,61 @@ class CustomKeyboardView @JvmOverloads constructor(
         val header = LinearLayout(context).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding((12 * density).toInt(), (4 * density).toInt(), (12 * density).toInt(), (4 * density).toInt())
-            layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (44 * density).toInt())
+            setPadding((14 * density).toInt(), (6 * density).toInt(), (14 * density).toInt(), (6 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (44 * density).toInt())
         }
 
         val title = TextView(context).apply {
-            text = "Select Keyboard Theme"
+            text = "Themes"
             setTextColor(colors.keyTextColorNormal)
-            textSize = 15f
+            textSize = 16f
             typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
-            layoutParams = LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         }
         header.addView(title)
 
-        val closeBtn = TextView(context).apply {
-            text = "✕ Close"
-            setTextColor(colors.accentColor)
-            textSize = 13f
-            typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
-            setPadding((8 * density).toInt(), (4 * density).toInt(), (8 * density).toInt(), (4 * density).toInt())
+        val wallpaperBtn = LinearLayout(context).apply {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding((10 * density).toInt(), (5 * density).toInt(), (10 * density).toInt(), (5 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (32 * density).toInt()).apply {
+                setMargins(0, 0, (8 * density).toInt(), 0)
+            }
             background = createPremiumKeyDrawable(
-                Color.argb(20, Color.red(colors.accentColor), Color.green(colors.accentColor), Color.blue(colors.accentColor)),
-                Color.argb(50, Color.red(colors.accentColor), Color.green(colors.accentColor), Color.blue(colors.accentColor)),
-                0, false, 6f * density
+                Color.argb(25, Color.red(colors.accentColor), Color.green(colors.accentColor), Color.blue(colors.accentColor)),
+                Color.argb(60, Color.red(colors.accentColor), Color.green(colors.accentColor), Color.blue(colors.accentColor)),
+                0, false, 16f * density
+            )
+            setOnClickListener {
+                wallpaperPickerListener?.invoke()
+            }
+        }
+        val wpIcon = android.widget.ImageView(context).apply {
+            setImageResource(R.drawable.ic_wallpaper_clean)
+            setColorFilter(colors.accentColor)
+            layoutParams = LinearLayout.LayoutParams((16 * density).toInt(), (16 * density).toInt()).apply {
+                setMargins(0, 0, (5 * density).toInt(), 0)
+            }
+        }
+        wallpaperBtn.addView(wpIcon)
+        val wpText = TextView(context).apply {
+            text = "Wallpaper"
+            setTextColor(colors.accentColor)
+            textSize = 12f
+            typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
+        }
+        wallpaperBtn.addView(wpText)
+        header.addView(wallpaperBtn)
+
+        val closeBtn = android.widget.ImageView(context).apply {
+            setImageResource(R.drawable.ic_close_clean)
+            setColorFilter(colors.keyTextColorModifier)
+            layoutParams = LinearLayout.LayoutParams((32 * density).toInt(), (32 * density).toInt())
+            setPadding((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
+            background = createPremiumKeyDrawable(
+                Color.argb(20, 255, 255, 255),
+                Color.argb(50, 255, 255, 255),
+                0, false, 8f * density
             )
             setOnClickListener {
                 viewState = ViewState.KEYS
@@ -1096,74 +1229,184 @@ class CustomKeyboardView @JvmOverloads constructor(
         addView(header)
 
         addView(View(context).apply {
-            layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (1 * density).toInt()).apply {
-                setMargins(0, 0, 0, (12 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (1 * density).toInt()).apply {
+                setMargins(0, 0, 0, (8 * density).toInt())
             }
             setBackgroundColor(colors.dividerColor)
         })
 
         val scrollView = HorizontalScrollView(context).apply {
-            layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (160 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (165 * density).toInt())
             isHorizontalScrollBarEnabled = false
         }
 
         val container = LinearLayout(context).apply {
             orientation = HORIZONTAL
-            setPadding((12 * density).toInt(), 0, (12 * density).toInt(), 0)
+            setPadding((12 * density).toInt(), (4 * density).toInt(), (12 * density).toInt(), (4 * density).toInt())
         }
 
         val themePresets = listOf(
-            Triple("theme_classic_light", "Likhibi's Light", listOf("#F5F5F0", "#D32F2F")),
-            Triple("theme_oled_black", "Likhibi's Dark", listOf("#000000", "#121212")),
-            Triple("theme_slate_grey", "Slate Grey", listOf("#263238", "#80CBC4")),
-            Triple("theme_navy_blue", "Navy Blue", listOf("#0D1B2A", "#E0E1DD")),
-            Triple("theme_earth_tone", "Earth Tone", listOf("#3E2723", "#FFCC80")),
-            Triple("theme_custom_wallpaper", "Custom Photo", listOf("#1F1C2C", "#928DAB"))
+            Triple("theme_midnight_glass", "Midnight Glass", Triple("#080C18", "#1E2740", "#00E5FF")),
+            Triple("theme_pure_minimal", "Pure Minimal", Triple("#F7F7F5", "#FFFFFF", "#303030")),
+            Triple("theme_liquid_glass", "Liquid Glass", Triple("#0B0F1C", "#253550", "#00D2FF")),
+            Triple("theme_material_you", "Material You", Triple("#FEF7FF", "#FFFFFF", "#6750A4")),
+            Triple("theme_naga_heritage", "Naga Heritage", Triple("#121214", "#1E1E22", "#D32F2F")),
+            Triple("theme_custom", "Custom Photo", Triple("#12121A", "#2A2A38", "#00E5FF"))
         )
 
-        for ((id, name, colorsList) in themePresets) {
+        for ((id, name, palette) in themePresets) {
+            val isSelected = (currentTheme == id)
+            val cardBg = Color.parseColor(palette.first)
+            val keyColor = Color.parseColor(palette.second)
+            val accentClr = Color.parseColor(palette.third)
+
             val itemCard = LinearLayout(context).apply {
                 orientation = VERTICAL
-                gravity = Gravity.CENTER
-                setPadding((12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt())
-                layoutParams = LayoutParams((110 * density).toInt(), (130 * density).toInt()).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
+                layoutParams = LinearLayout.LayoutParams((114 * density).toInt(), (145 * density).toInt()).apply {
                     setMargins((6 * density).toInt(), 0, (6 * density).toInt(), 0)
                 }
 
-                val cardBgColor = if (currentTheme == id) colors.clipboardCardPressed else colors.clipboardCardBg
                 background = createPremiumKeyDrawable(
-                    cardBgColor,
+                    if (isSelected) Color.argb(45, Color.red(accentClr), Color.green(accentClr), Color.blue(accentClr)) else colors.clipboardCardBg,
                     colors.clipboardCardPressed,
-                    if (currentTheme == id) colors.accentColor else Color.parseColor("#0E0F14"),
-                    true,
-                    14f * density
+                    0,
+                    false,
+                    14f * density,
+                    if (isSelected) 1.5f else 0.5f,
+                    if (isSelected) accentClr else Color.argb(25, 255, 255, 255)
                 )
             }
 
-            val dot = View(context).apply {
-                layoutParams = LayoutParams((38 * density).toInt(), (38 * density).toInt()).apply {
-                    setMargins(0, 0, 0, (12 * density).toInt())
+            // Mini Keyboard Preview Box (with adaptive contrast border)
+            val isLightTheme = (id == "theme_pure_minimal" || id == "theme_material_you")
+            val previewBox = LinearLayout(context).apply {
+                orientation = VERTICAL
+                layoutParams = LinearLayout.LayoutParams((98 * density).toInt(), (66 * density).toInt()).apply {
+                    setMargins(0, (2 * density).toInt(), 0, (10 * density).toInt())
                 }
-                background = GradientDrawable(
-                    GradientDrawable.Orientation.TL_BR,
-                    colorsList.map { Color.parseColor(it) }.toIntArray()
-                ).apply {
-                    shape = GradientDrawable.OVAL
-                    if (currentTheme == id) {
-                        setStroke((2 * density).toInt(), Color.WHITE)
-                    }
+                setPadding((5 * density).toInt(), (6 * density).toInt(), (5 * density).toInt(), (6 * density).toInt())
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 8f * density
+                    setColor(cardBg)
+                    setStroke(
+                        (1f * density).toInt(),
+                        if (isLightTheme) Color.parseColor("#CCCCCC") else Color.argb(60, 255, 255, 255)
+                    )
                 }
             }
-            itemCard.addView(dot)
+
+            // Preview Row 1
+            val pRow1 = LinearLayout(context).apply {
+                orientation = HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (12 * density).toInt()).apply {
+                    setMargins(0, 0, 0, (4 * density).toInt())
+                }
+            }
+            for (k in 0..5) {
+                pRow1.addView(View(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).apply {
+                        setMargins((1 * density).toInt(), 0, (1 * density).toInt(), 0)
+                    }
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = 3f * density
+                        setColor(keyColor)
+                    }
+                })
+            }
+            previewBox.addView(pRow1)
+
+            // Preview Row 2
+            val pRow2 = LinearLayout(context).apply {
+                orientation = HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (12 * density).toInt()).apply {
+                    setMargins(0, 0, 0, (4 * density).toInt())
+                }
+            }
+            for (k in 0..4) {
+                pRow2.addView(View(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).apply {
+                        setMargins((1 * density).toInt(), 0, (1 * density).toInt(), 0)
+                    }
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = 3f * density
+                        setColor(keyColor)
+                    }
+                })
+            }
+            previewBox.addView(pRow2)
+
+            // Preview Row 3 (Bottom with Accent Enter Key)
+            val pRow3 = LinearLayout(context).apply {
+                orientation = HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (12 * density).toInt())
+            }
+            pRow3.addView(View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.2f).apply {
+                    setMargins((1 * density).toInt(), 0, (1 * density).toInt(), 0)
+                }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 3f * density
+                    setColor(keyColor)
+                }
+            })
+            pRow3.addView(View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 3f).apply {
+                    setMargins((1 * density).toInt(), 0, (1 * density).toInt(), 0)
+                }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 3f * density
+                    setColor(keyColor)
+                }
+            })
+            pRow3.addView(View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.5f).apply {
+                    setMargins((1 * density).toInt(), 0, (1 * density).toInt(), 0)
+                }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 3f * density
+                    setColor(accentClr)
+                }
+            })
+            previewBox.addView(pRow3)
+
+            itemCard.addView(previewBox)
+
+            // Theme Name & Check Badge
+            val nameRow = LinearLayout(context).apply {
+                orientation = HORIZONTAL
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
 
             val nameTxt = TextView(context).apply {
                 text = name
-                setTextColor(if (currentTheme == id) colors.accentColor else colors.keyTextColorNormal)
+                setTextColor(if (isSelected) accentClr else colors.keyTextColorNormal)
                 textSize = 12f
                 gravity = Gravity.CENTER
-                typeface = Typeface.create(getSelectedTypeface(), Typeface.BOLD)
+                typeface = Typeface.create(getSelectedTypeface(), if (isSelected) Typeface.BOLD else Typeface.NORMAL)
             }
-            itemCard.addView(nameTxt)
+            nameRow.addView(nameTxt)
+
+            if (isSelected) {
+                val checkIcon = android.widget.ImageView(context).apply {
+                    setImageResource(R.drawable.ic_check_clean)
+                    setColorFilter(accentClr)
+                    layoutParams = LinearLayout.LayoutParams((14 * density).toInt(), (14 * density).toInt()).apply {
+                        setMargins((4 * density).toInt(), 0, 0, 0)
+                    }
+                }
+                nameRow.addView(checkIcon)
+            }
+
+            itemCard.addView(nameRow)
 
             itemCard.setOnClickListener {
                 prefs.edit().putString("selected_theme", id).apply()
@@ -1179,4 +1422,59 @@ class CustomKeyboardView @JvmOverloads constructor(
         scrollView.addView(container)
         addView(scrollView)
     }
+}
+
+/**
+ * CenterCropWallpaperDrawable scales and crops a bitmap to fill the view bounds
+ * without distortion and without reporting intrinsic width/height, ensuring
+ * that the keyboard height is never inflated or expanded by the image size.
+ */
+class CenterCropWallpaperDrawable(
+    private val bitmap: android.graphics.Bitmap,
+    private val overlayColor: Int
+) : android.graphics.drawable.Drawable() {
+    private val drawMatrix = android.graphics.Matrix()
+    private val bitmapPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG or android.graphics.Paint.FILTER_BITMAP_FLAG)
+    private val overlayPaint = android.graphics.Paint().apply {
+        color = overlayColor
+        style = android.graphics.Paint.Style.FILL
+    }
+
+    override fun draw(canvas: android.graphics.Canvas) {
+        val w = bounds.width().toFloat()
+        val h = bounds.height().toFloat()
+        if (w <= 0f || h <= 0f || bitmap.isRecycled) return
+
+        val bw = bitmap.width.toFloat()
+        val bh = bitmap.height.toFloat()
+        val scale = Math.max(w / bw, h / bh)
+        val dx = (w - bw * scale) * 0.5f
+        val dy = (h - bh * scale) * 0.5f
+
+        drawMatrix.setScale(scale, scale)
+        drawMatrix.postTranslate(dx, dy)
+
+        canvas.save()
+        canvas.clipRect(bounds)
+        canvas.drawBitmap(bitmap, drawMatrix, bitmapPaint)
+        if (android.graphics.Color.alpha(overlayColor) > 0) {
+            canvas.drawRect(bounds, overlayPaint)
+        }
+        canvas.restore()
+    }
+
+    override fun setAlpha(alpha: Int) {
+        bitmapPaint.alpha = alpha
+    }
+
+    override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {
+        bitmapPaint.colorFilter = colorFilter
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun getOpacity(): Int = android.graphics.PixelFormat.TRANSLUCENT
+
+    // CRITICAL: Returning -1 ensures LinearLayout wrap_content is NEVER expanded by the bitmap dimensions!
+    override fun getIntrinsicWidth(): Int = -1
+    override fun getIntrinsicHeight(): Int = -1
 }

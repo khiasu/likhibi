@@ -5,6 +5,10 @@ import android.util.Log
 
 class NagameseOfflineEngine(private val context: Context) {
 
+    // Precompiled 21,000-entry Trie prefix index and N-gram predictors
+    val triePredictor by lazy { TriePredictor(context) }
+    val ngramPredictor by lazy { NgramPredictor(context) }
+
     // Thread-safe in-memory cache for past Gemini API results (LRU cache representation)
     private val geminiCache = object : LinkedHashMap<String, List<String>>(100, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<String>>?): Boolean {
@@ -12,11 +16,53 @@ class NagameseOfflineEngine(private val context: Context) {
         }
     }
 
-    // Learned user vocabulary (added during the current typing sessions to personalize predictions)
+    // Persistent user dictionary preferences
+    private val userPrefs by lazy { context.getSharedPreferences("likhibi_user_dict_prefs", Context.MODE_PRIVATE) }
+
+    // Learned user vocabulary
     private val userWords = mutableMapOf<String, Int>()
 
-    // Learned user bigrams (added as the user types transitions to personalize next-word predictions)
+    // Learned user bigrams
     private val userBigrams = mutableMapOf<String, MutableMap<String, Int>>()
+
+    init {
+        loadPersistedUserData()
+    }
+
+    private fun loadPersistedUserData() {
+        try {
+            val wordsStr = userPrefs.getString("persisted_user_words", "") ?: ""
+            if (wordsStr.isNotEmpty()) {
+                for (pair in wordsStr.split(";")) {
+                    val parts = pair.split(":")
+                    if (parts.size == 2) {
+                        userWords[parts[0]] = parts[1].toIntOrNull() ?: 1
+                    }
+                }
+            }
+
+            val bigramsStr = userPrefs.getString("persisted_user_bigrams", "") ?: ""
+            if (bigramsStr.isNotEmpty()) {
+                for (item in bigramsStr.split("||")) {
+                    val parts = item.split("->")
+                    if (parts.size == 2) {
+                        val w1 = parts[0]
+                        val nextPairs = parts[1].split(";")
+                        val innerMap = mutableMapOf<String, Int>()
+                        for (np in nextPairs) {
+                            val sub = np.split(":")
+                            if (sub.size == 2) {
+                                innerMap[sub[0]] = sub[1].toIntOrNull() ?: 1
+                            }
+                        }
+                        userBigrams[w1] = innerMap
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("OfflineEngine", "Error loading persisted user data", e)
+        }
+    }
 
     // Local high-frequency vocabulary list of EXACTLY 430+ commonly used Nagamese words based on Bible & Grammar texts
     private val localDictionary: Map<String, Int> by lazy {
@@ -3270,16 +3316,13 @@ class NagameseOfflineEngine(private val context: Context) {
      */
     fun learnWord(word: String) {
         val w = word.trim().lowercase()
-        // Skip too short, too long, or non-alphabet strings
-        if (w.length <= 1 || w.length > 20 || w.any { !it.isLetter() }) return
-        
-        // Skip if already a high-ranking dictionary word to save space
-        if (localDictionary.containsKey(w) && (localDictionary[w] ?: 0) > 40) return
-
+        if (w.isEmpty() || w.length < 2) return
         synchronized(userWords) {
-            val count = userWords[w] ?: 0
-            userWords[w] = count + 1
-            Log.d("OfflineEngine", "Learned word: '$w' (Count: ${count + 1})")
+            userWords[w] = (userWords[w] ?: 0) + 1
+            if (userWords.size % 5 == 0) { // Batch save
+                val serialized = userWords.entries.joinToString(";") { "${it.key}:${it.value}" }
+                userPrefs.edit().putString("persisted_user_words", serialized).apply()
+            }
         }
     }
 
@@ -3364,93 +3407,77 @@ class NagameseOfflineEngine(private val context: Context) {
      * Performs instant local prefix-matching for actively-typing autocomplete (0ms delay)
      * Backfills suggestions with fuzzy candidates when exact matches are fewer than 3
      */
-    fun getPrefixMatches(prefix: String): List<String> {
+    /**
+     * Context-Aware Dual-Ranked Prefix Matching:
+     * Combines 21k Lexical Trie lookup with N-gram context transition probabilities and user history.
+     */
+    fun getPrefixMatches(contextWords: List<String> = emptyList(), prefix: String): List<String> {
         val p = prefix.trim().lowercase()
         if (p.isEmpty()) return emptyList()
 
-        val candidates = mutableListOf<Pair<String, Int>>()
+        val scoredMap = LinkedHashMap<String, Double>()
 
-        // 1. Check user-typed words and give them a priority weight boost (exact matches)
+        // 1. User Personal History (Highest Priority: +10,000 score bonus)
         synchronized(userWords) {
-            for ((word, freq) in userWords) {
-                if (word.startsWith(p)) {
-                    candidates.add(word to (freq * 50 + 100))
-                }
+            val userMatches = userWords.entries
+                .filter { it.key.startsWith(p) }
+                .sortedByDescending { it.value }
+            for ((w, freq) in userMatches) {
+                scoredMap[w] = (scoredMap[w] ?: 0.0) + (freq * 10000.0)
             }
         }
 
-        // 2. Fetch exact matches from local precompiled vocabulary
+        // 2. Contextual N-Gram Predictions (Trigram / Bigram transition bonus: +5,000 score bonus)
+        if (contextWords.isNotEmpty()) {
+            val ngramMatches = ngramPredictor.predictNext(contextWords, p, 10)
+            for ((idx, w) in ngramMatches.withIndex()) {
+                val bonus = (10 - idx) * 5000.0
+                scoredMap[w] = (scoredMap[w] ?: 0.0) + bonus
+            }
+        }
+
+        // 3. Complete 21,000 Lexicon Trie Prefix Matches
+        val trieMatches = triePredictor.findPrefixMatches(p, 15)
+        for ((w, freq) in trieMatches) {
+            val baseFreq = (freq.toDouble()).coerceAtLeast(1.0)
+            scoredMap[w] = (scoredMap[w] ?: 0.0) + baseFreq
+        }
+
+        // 4. Local High-Frequency Fallback Dictionary
         for ((word, freq) in localDictionary) {
             if (word.startsWith(p)) {
-                candidates.add(word to freq)
+                scoredMap[word] = (scoredMap[word] ?: 0.0) + (freq * 50.0)
             }
         }
 
-        // Remove duplicates for exact matches, taking the highest frequency ranking
-        val uniqueCandidates = candidates
-            .groupBy { it.first }
-            .map { entry -> entry.key to entry.value.maxOf { it.second } }
-            .toMutableList()
-
-        // 3. Backfill with fuzzy matches if we have fewer than 3 exact suggestions
-        if (uniqueCandidates.size < 3) {
-            val exactWordsSet = uniqueCandidates.map { it.first }.toSet()
-            val fuzzyCandidates = mutableListOf<Pair<String, Int>>()
-
-            // Check userWords for fuzzy prefix matches
-            synchronized(userWords) {
-                for ((word, freq) in userWords) {
-                    if (word in exactWordsSet) continue
-                    val target = if (word.length >= p.length) word.take(p.length) else word
-                    if (getEditDistance(p, target) <= 1) {
-                        val baseWeight = freq * 50 + 100
-                        fuzzyCandidates.add(word to Math.max(1, baseWeight - 30))
-                    }
-                }
-            }
-
-            // Check local precompiled dictionary for fuzzy prefix matches
-            for ((word, freq) in localDictionary) {
-                if (word in exactWordsSet) continue
-                val target = if (word.length >= p.length) word.take(p.length) else word
-                if (getEditDistance(p, target) <= 1) {
-                    fuzzyCandidates.add(word to Math.max(1, freq - 30))
-                }
-            }
-
-            // Group fuzzy candidates and add to uniqueMatches
-            val uniqueFuzzy = fuzzyCandidates
-                .groupBy { it.first }
-                .map { entry -> entry.key to entry.value.maxOf { it.second } }
-
-            uniqueCandidates.addAll(uniqueFuzzy)
-        }
-
-        // 4. Group, sort by descending weight, and take top 3 items
-        val result = uniqueCandidates
-            .groupBy { it.first }
-            .map { entry -> entry.key to entry.value.maxOf { it.second } }
-            .sortedByDescending { it.second }
-            .map { it.first }
+        val sorted = scoredMap.entries
+            .sortedByDescending { it.value }
+            .map { it.key }
+            .distinct()
             .take(3)
-            
-        Log.d("OfflineEngine", "Prefix matches for '$p' (exact/fuzzy): $result")
-        return result
+
+        return sorted
     }
 
     /**
-     * Performs instant local next-word bigram prediction (0ms delay)
-     * Prioritizes learned user transitions and merges them with precompiled ones
+     * Overloaded for backward compatibility
      */
-    fun getLocalNextWordPredictions(lastWord: String): List<String> {
-        val lw = lastWord.trim().lowercase()
-        if (lw.isEmpty()) return getPopularWords()
+    fun getPrefixMatches(prefix: String): List<String> {
+        return getPrefixMatches(emptyList(), prefix)
+    }
+
+    /**
+     * Performs instant contextual next-word prediction (Trigram -> Bigram -> User History)
+     */
+    fun getLocalNextWordPredictions(contextWords: List<String>): List<String> {
+        if (contextWords.isEmpty()) return getPopularWords()
 
         val candidates = LinkedHashSet<String>()
 
-        // 1. Fetch user-learned transitions first (gives them priority)
+        // 1. User Personal Learned Transitions (Top Priority)
+        val lastWord = contextWords.last().trim().lowercase()
         synchronized(userBigrams) {
-            val userTrans = userBigrams[lw]
+            val userTrans = userBigrams[lastWord]
             if (userTrans != null) {
                 val sortedUserTrans = userTrans.entries
                     .sortedByDescending { it.value }
@@ -3459,28 +3486,31 @@ class NagameseOfflineEngine(private val context: Context) {
             }
         }
 
-        // 2. Fetch precompiled next-word bigrams
-        val precompiled = localBigrams[lw]
+        // 2. Contextual Trigram / Bigram Statistical Language Model
+        if (ngramPredictor.isLoaded) {
+            val ngramMatches = ngramPredictor.predictNext(contextWords, "", 5)
+            candidates.addAll(ngramMatches)
+        }
+
+        // 3. Local Bigrams Table
+        val precompiled = localBigrams[lastWord]
         if (precompiled != null) {
             candidates.addAll(precompiled)
         }
 
-        // Keep only top 3 unique predictions
-        val result = candidates.take(3).toList()
-        if (result.isNotEmpty()) {
-            Log.d("OfflineEngine", "Dynamic predictions for '$lw': $result")
-            return result
+        // Filter out same word repetition
+        val filtered = candidates.filter { it != lastWord }.take(3)
+        if (filtered.isNotEmpty()) {
+            return filtered
         }
 
-        // 3. Fallback to general popular words (filtered to make sure we don't repeat the same word)
-        val fallback = getPopularWords().filter { it != lw }.take(3)
-        Log.d("OfflineEngine", "Fallback transitions for '$lw': $fallback")
-        return fallback
+        return getPopularWords().filter { it != lastWord }.take(3)
     }
 
-    /**
-     * Standard startup/fallback suggestion set
-     */
+    fun getLocalNextWordPredictions(lastWord: String): List<String> {
+        return getLocalNextWordPredictions(listOf(lastWord))
+    }
+
     fun getPopularWords(): List<String> {
         return listOf("moi", "tumi", "ase")
     }

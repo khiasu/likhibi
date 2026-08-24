@@ -1,5 +1,7 @@
 package com.likhibi.android
 
+import com.likhibi.keyboard.R
+import com.likhibi.keyboard.BuildConfig
 import com.likhibi.nlp.engine.NagameseOfflineEngine
 import com.likhibi.nlp.engine.GeminiClient
 
@@ -40,12 +42,18 @@ class LikhibiImeService : InputMethodService() {
     private var suggestionViews: List<TextView> = emptyList()
 
     // Toolbar elements
-    private var btnToggle: TextView? = null
+    private var btnToggle: android.widget.ImageView? = null
+    private var iconToolClip: android.widget.ImageView? = null
+    private var iconToolTheme: android.widget.ImageView? = null
+    private var iconToolSettings: android.widget.ImageView? = null
+    private var textToolClip: TextView? = null
+    private var textToolTheme: TextView? = null
+    private var textToolSettings: TextView? = null
     private var suggestionsLayout: LinearLayout? = null
     private var toolsLayout: LinearLayout? = null
-    private var btnToolClip: TextView? = null
-    private var btnToolTheme: TextView? = null
-    private var btnToolSettings: TextView? = null
+    private var btnToolClip: View? = null
+    private var btnToolTheme: View? = null
+    private var btnToolSettings: View? = null
     private var toolbarDivider: View? = null
     private var barDivider: View? = null
 
@@ -67,6 +75,7 @@ class LikhibiImeService : InputMethodService() {
         const val KEYCODE_SYMBOL_EXTRA = -3
         const val KEYCODE_SYMBOL_BACK = -4
         const val KEYCODE_EMOJI_SWITCH = -10
+        const val KEYCODE_SWITCH_IME = -11
     }
 
     override fun onCreate() {
@@ -100,7 +109,7 @@ class LikhibiImeService : InputMethodService() {
         }
 
         val prefs = getSharedPreferences("likhibi_keyboard_prefs", Context.MODE_PRIVATE)
-        lastTheme = prefs.getString("selected_theme", "theme_midnight") ?: "theme_midnight"
+        lastTheme = prefs.getString("selected_theme", "theme_midnight_glass") ?: "theme_midnight_glass"
         lastFont = prefs.getString("selected_font", "sans-serif") ?: "sans-serif"
 
         // Initialize and bind toolbar controls
@@ -112,6 +121,18 @@ class LikhibiImeService : InputMethodService() {
         btnToolClip = view.findViewById(R.id.btn_tool_clip)
         btnToolTheme = view.findViewById(R.id.btn_tool_theme)
         btnToolSettings = view.findViewById(R.id.btn_tool_settings)
+        iconToolClip = view.findViewById(R.id.icon_tool_clip)
+        iconToolTheme = view.findViewById(R.id.icon_tool_theme)
+        iconToolSettings = view.findViewById(R.id.icon_tool_settings)
+        textToolClip = view.findViewById(R.id.text_tool_clip)
+        textToolTheme = view.findViewById(R.id.text_tool_theme)
+        textToolSettings = view.findViewById(R.id.text_tool_settings)
+        iconToolClip = view.findViewById(R.id.icon_tool_clip)
+        iconToolTheme = view.findViewById(R.id.icon_tool_theme)
+        iconToolSettings = view.findViewById(R.id.icon_tool_settings)
+        textToolClip = view.findViewById(R.id.text_tool_clip)
+        textToolTheme = view.findViewById(R.id.text_tool_theme)
+        textToolSettings = view.findViewById(R.id.text_tool_settings)
 
         btnToggle?.setOnClickListener {
             keyboardView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
@@ -155,6 +176,13 @@ class LikhibiImeService : InputMethodService() {
         keyboardView?.themeChangeListener = {
             applySuggestionBarTheme()
         }
+        keyboardView?.wallpaperPickerListener = {
+            val intent = Intent(this, SettingsActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra("ACTION_PICK_WALLPAPER", true)
+            }
+            startActivity(intent)
+        }
 
         registerClipboardListener()
 
@@ -166,7 +194,7 @@ class LikhibiImeService : InputMethodService() {
      */
     private fun applySuggestionBarTheme() {
         val prefs = getSharedPreferences("likhibi_keyboard_prefs", MODE_PRIVATE)
-        val theme = prefs.getString("selected_theme", "theme_midnight") ?: "theme_midnight"
+        val theme = prefs.getString("selected_theme", "theme_midnight_glass") ?: "theme_midnight_glass"
 
         data class BarColors(
             val barBg: Int, val textNormal: Int, val textAccent: Int,
@@ -174,39 +202,53 @@ class LikhibiImeService : InputMethodService() {
         )
 
         val c = when (theme) {
-            "theme_classic_light" -> BarColors(
-                Color.parseColor("#F5F5F0"), Color.parseColor("#757575"), Color.parseColor("#D32F2F"),
-                Color.parseColor("#D32F2F"), Color.parseColor("#E0E0E0"), Color.parseColor("#424242")
+            "theme_midnight_glass" -> BarColors(
+                Color.parseColor("#0A0F1E"), Color.parseColor("#8899B8"), Color.parseColor("#00E5FF"),
+                Color.parseColor("#00E5FF"), Color.parseColor("#1A2040"), Color.parseColor("#8899B8")
             )
-            "theme_oled_black" -> BarColors(
-                Color.parseColor("#000000"), Color.parseColor("#888888"), Color.parseColor("#FFFFFF"),
-                Color.parseColor("#FFFFFF"), Color.parseColor("#1A1A1A"), Color.parseColor("#CCCCCC")
+            "theme_pure_minimal" -> BarColors(
+                Color.parseColor("#F7F7F5"), Color.parseColor("#888888"), Color.parseColor("#2A2A2A"),
+                Color.parseColor("#2A2A2A"), Color.parseColor("#E8E8E6"), Color.parseColor("#555555")
             )
-            "theme_slate_grey" -> BarColors(
-                Color.parseColor("#263238"), Color.parseColor("#90A4AE"), Color.parseColor("#80CBC4"),
-                Color.parseColor("#80CBC4"), Color.parseColor("#1C272C"), Color.parseColor("#CFD8DC")
+            "theme_liquid_glass" -> BarColors(
+                Color.parseColor("#080D1A"), Color.parseColor("#8E9EB8"), Color.parseColor("#00D2FF"),
+                Color.parseColor("#00D2FF"), Color.argb(40, 0, 210, 255), Color.parseColor("#8E9EB8")
             )
-            "theme_navy_blue" -> BarColors(
-                Color.parseColor("#0D1B2A"), Color.parseColor("#778DA9"), Color.parseColor("#E0E1DD"),
-                Color.parseColor("#E0E1DD"), Color.parseColor("#08121E"), Color.parseColor("#778DA9")
+            "theme_material_you" -> BarColors(
+                Color.parseColor("#FEF7FF"), Color.parseColor("#49454F"), Color.parseColor("#6750A4"),
+                Color.parseColor("#6750A4"), Color.parseColor("#E7E0EC"), Color.parseColor("#49454F")
             )
-            "theme_earth_tone" -> BarColors(
-                Color.parseColor("#3E2723"), Color.parseColor("#8D6E63"), Color.parseColor("#FFCC80"),
-                Color.parseColor("#FFCC80"), Color.parseColor("#301E1A"), Color.parseColor("#BCAAA4")
-            )
-            "theme_custom_wallpaper" -> BarColors(
-                Color.argb(80, 0, 0, 0), Color.argb(220, 255, 255, 255), Color.parseColor("#00E5FF"),
-                Color.WHITE, Color.argb(40, 255, 255, 255), Color.WHITE
-            )
+            "theme_naga_heritage" -> {
+                val isNight = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+                if (isNight) {
+                    BarColors(
+                        Color.parseColor("#121214"), Color.parseColor("#A8A096"), Color.parseColor("#E53935"),
+                        Color.parseColor("#E53935"), Color.parseColor("#241A1C"), Color.parseColor("#A8A096")
+                    )
+                } else {
+                    BarColors(
+                        Color.parseColor("#F9F6F0"), Color.parseColor("#5A544A"), Color.parseColor("#D32F2F"),
+                        Color.parseColor("#D32F2F"), Color.parseColor("#E5DED2"), Color.parseColor("#5A544A")
+                    )
+                }
+            }
+            "theme_custom" -> {
+                val accentColorValue = prefs.getInt("custom_accent_color", Color.parseColor("#00E5FF"))
+                val overlayOpacity = prefs.getInt("custom_overlay_opacity", 140).coerceIn(0, 220)
+                BarColors(
+                    Color.argb(overlayOpacity, 10, 10, 18), Color.argb(200, 255, 255, 255), accentColorValue,
+                    accentColorValue, Color.argb(40, 255, 255, 255), Color.WHITE
+                )
+            }
             else -> BarColors(
-                Color.parseColor("#000000"), Color.parseColor("#888888"), Color.parseColor("#FFFFFF"),
-                Color.parseColor("#FFFFFF"), Color.parseColor("#1A1A1A"), Color.parseColor("#CCCCCC")
+                Color.parseColor("#0A0F1E"), Color.parseColor("#8899B8"), Color.parseColor("#00E5FF"),
+                Color.parseColor("#00E5FF"), Color.parseColor("#1A2040"), Color.parseColor("#8899B8")
             )
         }
 
         suggestionBar?.setBackgroundColor(c.barBg)
         imeRootView?.setBackgroundColor(c.barBg)
-        btnToggle?.setTextColor(c.toggleColor)
+        // btnToggle logo is pristine background-less
         toolbarDivider?.setBackgroundColor(c.divider)
         barDivider?.setBackgroundColor(c.divider)
 
@@ -225,10 +267,13 @@ class LikhibiImeService : InputMethodService() {
             }
         }
 
-        // Tool button text colors
-        btnToolClip?.setTextColor(c.toolText)
-        btnToolTheme?.setTextColor(c.toolText)
-        btnToolSettings?.setTextColor(c.toolText)
+        // Tool button vector tint & text colors
+        textToolClip?.setTextColor(c.toolText)
+        textToolTheme?.setTextColor(c.toolText)
+        textToolSettings?.setTextColor(c.toolText)
+        iconToolClip?.setColorFilter(c.toolText)
+        iconToolTheme?.setColorFilter(c.toolText)
+        iconToolSettings?.setColorFilter(c.toolText)
     }
 
     private fun toggleToolbar() {
@@ -236,7 +281,8 @@ class LikhibiImeService : InputMethodService() {
             // Close tools, show suggestions
             toolsLayout?.visibility = View.GONE
             suggestionsLayout?.visibility = View.VISIBLE
-            btnToggle?.text = "❖"
+            btnToggle?.setImageResource(R.mipmap.ic_launcher)
+            btnToggle?.rotation = 0f
             // Revert keyboard shelf if showing clipboard or theme swappers
             if (keyboardView?.getViewState() != CustomKeyboardView.ViewState.KEYS) {
                 keyboardView?.switchMode(CustomKeyboardView.Mode.QWERTY)
@@ -245,7 +291,7 @@ class LikhibiImeService : InputMethodService() {
             // Show tools, hide suggestions
             suggestionsLayout?.visibility = View.GONE
             toolsLayout?.visibility = View.VISIBLE
-            btnToggle?.text = "✕"
+            btnToggle?.setImageResource(R.drawable.ic_close_clean)
         }
     }
 
@@ -311,7 +357,7 @@ class LikhibiImeService : InputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         val prefs = getSharedPreferences("likhibi_keyboard_prefs", Context.MODE_PRIVATE)
-        val currentTheme = prefs.getString("selected_theme", "theme_midnight") ?: "theme_midnight"
+        val currentTheme = prefs.getString("selected_theme", "theme_midnight_glass") ?: "theme_midnight_glass"
         val currentFont = prefs.getString("selected_font", "sans-serif") ?: "sans-serif"
         
         if (currentTheme != lastTheme || currentFont != lastFont) {
@@ -320,14 +366,23 @@ class LikhibiImeService : InputMethodService() {
 
         super.onStartInput(attribute, restarting)
 
-        val enterAction = attribute?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
-        val enterLabel = when (enterAction) {
-            EditorInfo.IME_ACTION_SEARCH -> "🔍"
-            EditorInfo.IME_ACTION_GO -> "➔"
-            EditorInfo.IME_ACTION_SEND -> "➤"
-            EditorInfo.IME_ACTION_NEXT -> "↵"
-            EditorInfo.IME_ACTION_DONE -> "✓"
-            else -> "↵"
+        val imeOptions = attribute?.imeOptions ?: 0
+        val inputType = attribute?.inputType ?: 0
+        val enterAction = imeOptions and EditorInfo.IME_MASK_ACTION
+        val noEnterAction = (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
+        val isMultiLine = (inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        val enterLabel = if (noEnterAction || isMultiLine) {
+            "↵"
+        } else {
+            when (enterAction) {
+                EditorInfo.IME_ACTION_SEARCH -> "🔍"
+                EditorInfo.IME_ACTION_GO -> "➔"
+                EditorInfo.IME_ACTION_SEND -> "➤"
+                EditorInfo.IME_ACTION_NEXT -> "↵"
+                EditorInfo.IME_ACTION_DONE -> "✓"
+                else -> "↵"
+            }
         }
         keyboardView?.enterKeyLabel = enterLabel
         currentComposing = StringBuilder()
@@ -338,7 +393,7 @@ class LikhibiImeService : InputMethodService() {
         // Auto reset toolbar state back to suggestions on launch
         toolsLayout?.visibility = View.GONE
         suggestionsLayout?.visibility = View.VISIBLE
-        btnToggle?.text = "❖"
+        btnToggle?.setImageResource(R.mipmap.ic_launcher)
 
         // Batch reset visual state to avoid redundant UI rebuilds and ANRs
         keyboardView?.resetState(CustomKeyboardView.Mode.QWERTY, false)
@@ -369,6 +424,10 @@ class LikhibiImeService : InputMethodService() {
             KEYCODE_SYMBOL_EXTRA -> handleSymbolExtra()
             KEYCODE_SYMBOL_BACK -> handleSymbolBack()
             KEYCODE_EMOJI_SWITCH -> handleEmojiSwitch()
+            KEYCODE_SWITCH_IME -> {
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+                imm?.showInputMethodPicker()
+            }
             10 -> handleEnter(ic)
             32 -> handleSpace(ic)
             Int.MAX_VALUE -> ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_RIGHT))
@@ -468,11 +527,23 @@ class LikhibiImeService : InputMethodService() {
             ic.finishComposingText()
             currentComposing = StringBuilder()
         }
-        val action = currentInputEditorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
-        if (action != null && action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
+
+        val info = currentInputEditorInfo
+        val imeOptions = info?.imeOptions ?: 0
+        val inputType = info?.inputType ?: 0
+        val action = imeOptions and EditorInfo.IME_MASK_ACTION
+        val noEnterAction = (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
+        val isMultiLine = (inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        if (!noEnterAction && !isMultiLine && action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
             ic.performEditorAction(action)
         } else {
-            ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
+            // Newline for multiline chat & text fields (WhatsApp, Telegram, Notes, Messages)
+            val committed = ic.commitText("\n", 1)
+            if (!committed) {
+                ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
+                ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_ENTER))
+            }
         }
 
         // Dynamically learn the bigram from the last 2 committed words
@@ -543,20 +614,21 @@ class LikhibiImeService : InputMethodService() {
             if (toolsLayout?.visibility == View.VISIBLE) {
                 toolsLayout?.visibility = View.GONE
                 suggestionsLayout?.visibility = View.VISIBLE
-                btnToggle?.text = "❖"
+                btnToggle?.setImageResource(R.mipmap.ic_launcher)
                 if (keyboardView?.getViewState() != CustomKeyboardView.ViewState.KEYS) {
                     keyboardView?.switchMode(CustomKeyboardView.Mode.QWERTY)
                 }
             }
 
-            val localMatches = offlineEngine.getPrefixMatches(composing)
+            val context = getLastWords(3)
+            val localMatches = offlineEngine.getPrefixMatches(context, composing)
             if (localMatches.isNotEmpty()) {
                 updateSuggestionBar(localMatches)
             } else {
                 updateSuggestionBar(listOf(composing, "", ""))
             }
         } else {
-            val context = getLastWords(5)
+            val context = getLastWords(3)
             if (context.isEmpty()) {
                 updateSuggestionBar(offlineEngine.getPopularWords())
                 return
@@ -568,8 +640,7 @@ class LikhibiImeService : InputMethodService() {
             if (cached != null) {
                 updateSuggestionBar(cached)
             } else {
-                val lastWord = context.last()
-                val localPredictions = offlineEngine.getLocalNextWordPredictions(lastWord)
+                val localPredictions = offlineEngine.getLocalNextWordPredictions(context)
                 updateSuggestionBar(localPredictions)
 
                 queryGeminiBackground(context, contextKey)

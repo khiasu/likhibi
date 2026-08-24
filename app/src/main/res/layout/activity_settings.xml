@@ -138,18 +138,239 @@
                                 android:backgroundTint="?attr/colorOnSurface" />
                         </LinearLayout>
                         
-                        <!-- Dedicated Change Wallpaper Button -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_change_wallpaper"
-                            android:layout_width="wrap_content"
+                        <!-- Dedicated Custom Theme Controls Panel -->
+                        <LinearLayout
+                            android:id="@+id/layout_custom_theme_controls"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginEnd="16dp"
-                            android:layout_marginBottom="12dp"
-                            android:text="Change Photo"
-                            android:visibility="gone"
-                            app:cornerRadius="8dp"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_change_wallpaper"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:layout_marginBottom="14dp"
+                                android:text="Pick Custom Wallpaper"
+                                app:icon="@drawable/ic_wallpaper_clean"
+                                app:cornerRadius="10dp"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                            <!-- Wallpaper Dimming -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginBottom="12dp">
+                                <TextView
+                                    android:id="@+id/lbl_overlay_opacity"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Wallpaper Dimming: 55%"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="13sp" />
+                                <SeekBar
+                                    android:id="@+id/seek_overlay_opacity"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:max="240"
+                                    android:progress="140"
+                                    android:layout_marginTop="4dp" />
+                            </LinearLayout>
+
+                            <!-- Keycap Opacity -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginBottom="12dp">
+                                <TextView
+                                    android:id="@+id/lbl_key_opacity"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Keycap Transparency: 20%"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="13sp" />
+                                <SeekBar
+                                    android:id="@+id/seek_key_opacity"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:max="255"
+                                    android:progress="50"
+                                    android:layout_marginTop="4dp" />
+                            </LinearLayout>
+
+                            <!-- Key Corner Radius Slider -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginBottom="12dp">
+                                <TextView
+                                    android:id="@+id/lbl_corner_radius"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Key Corner Rounding: 10dp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="13sp" />
+                                <SeekBar
+                                    android:id="@+id/seek_corner_radius"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:max="20"
+                                    android:progress="10"
+                                    android:layout_marginTop="4dp" />
+                            </LinearLayout>
+
+                            <!-- 3D Elevation Switch -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="14dp">
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="3D Key Elevation"
+                                        android:textColor="?attr/colorOnSurface"
+                                        android:textSize="14sp" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Add tactile depth shadows under keys"
+                                        android:textColor="?attr/colorOnSurface"
+                                        android:alpha="0.6"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                                <com.google.android.material.switchmaterial.SwitchMaterial
+                                    android:id="@+id/switch_custom_shadow"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                            </LinearLayout>
+
+                            <!-- Accent Glow Color Selection -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Accent &amp; Enter Key Glow"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="13sp"
+                                android:layout_marginBottom="8dp" />
+
+                            <LinearLayout
+                                android:id="@+id/layout_accent_colors"
+                                android:layout_width="match_parent"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <View
+                                    android:id="@+id/color_chip_cyan"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:background="@drawable/color_chip_cyan"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+
+                                <View
+                                    android:id="@+id/color_chip_amber"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:background="@drawable/color_chip_amber"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+
+                                <View
+                                    android:id="@+id/color_chip_emerald"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:background="@drawable/color_chip_emerald"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+
+                                <View
+                                    android:id="@+id/color_chip_rose"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:background="@drawable/color_chip_rose"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+
+                                <View
+                                    android:id="@+id/color_chip_violet"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:background="@drawable/color_chip_violet"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+
+                                <View
+                                    android:id="@+id/color_chip_blue"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:background="@drawable/color_chip_blue"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+
+                                <View
+                                    android:id="@+id/color_chip_white"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:background="@drawable/color_chip_white"
+                                    android:clickable="true"
+                                    android:focusable="true" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="16dp"/>
+
+                        <!-- Number Row Toggle -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="12dp"
+                            android:gravity="center_vertical">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Number Row"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="16sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Always show 1-0 on top like Gboard"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switch_number_row"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
 
                         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOnSurface" android:alpha="0.08" android:layout_marginStart="16dp"/>
 

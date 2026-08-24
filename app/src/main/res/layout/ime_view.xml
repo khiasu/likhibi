@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ime_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#12131A"
+    android:background="#080C18"
     android:orientation="vertical"
     android:paddingBottom="2dp">
 
@@ -11,23 +12,21 @@
     <LinearLayout
         android:id="@+id/suggestion_bar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#1A1C24"
+        android:layout_height="42dp"
+        android:background="#0A0F1E"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="6dp"
         android:elevation="3dp">
 
-        <!-- Dynamic Menu / Close Toggle Button -->
-        <TextView
+        <!-- Dynamic Menu / Close Toggle Button (Likhibi App Logo background-less) -->
+        <ImageView
             android:id="@+id/btn_toolbar_toggle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:text="❖"
-            android:textColor="#00E5FF"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="fitCenter"
+            android:padding="6dp"
             android:clickable="true"
             android:focusable="true"
             android:background="?android:attr/selectableItemBackgroundBorderless" />
@@ -38,7 +37,7 @@
             android:layout_width="1dp"
             android:layout_height="22dp"
             android:layout_marginHorizontal="2dp"
-            android:background="#2E313D" />
+            android:background="#1A2040" />
 
         <!-- 1. Suggestions Container (Visible by default) -->
         <LinearLayout
@@ -53,7 +52,7 @@
             <TextView
                 android:id="@+id/suggestion_1"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="32dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp"
                 android:background="?android:attr/selectableItemBackground"
@@ -70,13 +69,13 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="22dp"
-                android:background="#2E313D" />
+                android:background="#1A2040" />
 
             <!-- Suggestion 2 (Center - OxygenOS Active Accent Highlight) -->
             <TextView
                 android:id="@+id/suggestion_2"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="32dp"
                 android:layout_weight="1.2"
                 android:layout_marginHorizontal="6dp"
                 android:background="?android:attr/selectableItemBackground"
@@ -94,13 +93,13 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="22dp"
-                android:background="#2E313D" />
+                android:background="#1A2040" />
 
             <!-- Suggestion 3 (Right) -->
             <TextView
                 android:id="@+id/suggestion_3"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="32dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp"
                 android:background="?android:attr/selectableItemBackground"
@@ -120,57 +119,97 @@
             android:id="@+id/tools_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:paddingHorizontal="4dp"
             android:visibility="gone">
 
             <!-- Clipboard Button -->
-            <TextView
+            <LinearLayout
                 android:id="@+id/btn_tool_clip"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="34dp"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:background="?android:attr/selectableItemBackground"
+                android:layout_marginHorizontal="3dp"
                 android:gravity="center"
-                android:text="Clipboard"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
+                android:orientation="horizontal"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/icon_tool_clip"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_tool_clipboard"
+                    app:tint="#FFFFFF"
+                    android:layout_marginEnd="6dp"/>
+                <TextView
+                    android:id="@+id/text_tool_clip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clipboard"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
 
             <!-- Themes Button -->
-            <TextView
+            <LinearLayout
                 android:id="@+id/btn_tool_theme"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="34dp"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:background="?android:attr/selectableItemBackground"
+                android:layout_marginHorizontal="3dp"
                 android:gravity="center"
-                android:text="Themes"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
+                android:orientation="horizontal"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/icon_tool_theme"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_tool_theme"
+                    app:tint="#FFFFFF"
+                    android:layout_marginEnd="6dp"/>
+                <TextView
+                    android:id="@+id/text_tool_theme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Themes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
 
             <!-- Settings Button -->
-            <TextView
+            <LinearLayout
                 android:id="@+id/btn_tool_settings"
                 android:layout_width="0dp"
-                android:layout_height="38dp"
+                android:layout_height="34dp"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:background="?android:attr/selectableItemBackground"
+                android:layout_marginHorizontal="3dp"
                 android:gravity="center"
-                android:text="Settings"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
+                android:orientation="horizontal"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/icon_tool_settings"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_tool_settings"
+                    app:tint="#FFFFFF"
+                    android:layout_marginEnd="6dp"/>
+                <TextView
+                    android:id="@+id/text_tool_settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Settings"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -181,7 +220,7 @@
         android:id="@+id/bar_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#15161C" />
+        android:background="#1A2040" />
 
     <!-- Our high-performance programmatically styled custom keyboard view -->
     <com.likhibi.android.CustomKeyboardView

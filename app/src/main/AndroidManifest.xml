@@ -12,7 +12,7 @@
         android:theme="@style/Theme.LikhibiKeyboard">
 
         <activity
-            android:name=".android.SettingsActivity"
+            android:name="com.likhibi.android.SettingsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,7 +21,7 @@
         </activity>
 
         <service
-            android:name=".android.LikhibiImeService"
+            android:name="com.likhibi.android.LikhibiImeService"
             android:exported="true"
             android:label="@string/ime_name"
             android:theme="@style/Theme.LikhibiKeyboard"
